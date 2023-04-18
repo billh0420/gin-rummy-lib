@@ -16,10 +16,12 @@ from RLTrainerConfig import RLTrainerConfig
 from RLTrainer import RLTrainer
 from GinRummyRookie01RuleAgent import GinRummyRookie01RuleAgent
 from GameReviewer import GameReviewer
+from GameMaker import GameMaker
 
 class World:
 
-    def __init__(self, world_dir:str or None = None):
+    def __init__(self, game_maker:GameMaker, world_dir:str or None = None):
+        self.game_maker = game_maker
         self.world_dir = world_dir if world_dir else os.path.abspath('.')
         # Game settings
         if not os.path.exists(self.game_settings_path):
