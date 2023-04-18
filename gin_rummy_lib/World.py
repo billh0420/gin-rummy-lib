@@ -133,7 +133,7 @@ class World:
             agent = torch.load(self.agent_path, map_location=device)
             agent.set_device(device)
         elif os.path.exists(self.game_settings_path):
-        	num_actions = self.get_game_num_actions()
+            num_actions = self.get_game_num_actions()
             state_shape = config.state_shape # state_shape for player_id = 0
             agent = DQNAgent(
                 replay_memory_size=config.replay_memory_size,
