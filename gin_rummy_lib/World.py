@@ -15,7 +15,6 @@ from DQNAgentConfig import DQNAgentConfig
 from RLTrainerConfig import RLTrainerConfig
 from RLTrainer import RLTrainer
 from GinRummyRookie01RuleAgent import GinRummyRookie01RuleAgent
-from GinRummyScorer230402 import GinRummyScorer230402
 from GameReviewer import GameReviewer
 
 class World:
@@ -29,9 +28,6 @@ class World:
             game_settings_df = pd.DataFrame([default_game_settings_dict])
             game_settings_df.to_json(self.game_settings_path)
         self.game_settings = pd.read_json(self.game_settings_path)
-
-        # GameScorer
-        self.game_scorer = GinRummyScorer230402()
 
         # Define configs
         self.dqn_agent_config = DQNAgentConfig()
@@ -75,23 +71,15 @@ class World:
         if len(world_game_settings_dicts) == 1:
             result = world_game_settings_dicts[0]
         return result
-    
+
     def get_game_num_actions(self) -> int:
-        game = self.make_game()
+        game = self.game_maker.make_game()
         num_actions = game.get_num_actions()
         return num_actions
-
-    def make_game(self) -> GinRummyGame:
-        game = GinRummyGame()
-        settings = Settings()
-        settings.change_settings(self.game_settings_dict)
-        game.settings = settings
-        game.judge.scorer = self.game_scorer
-        return game
  
     def play_train_match(self, num_episodes: int or None = None):
         if self.agent:
-            game = self.make_game()
+            game = self.game_maker.make_game()
             opponent = GinRummyRookie01RuleAgent()
             opponents = [opponent]
             dqn_agent_config = self.dqn_agent_config
@@ -119,7 +107,7 @@ class World:
             print("You need to create a dqn_agent")
             
     def play_review_match(self, max_review_episodes: int):
-        game = self.make_game()
+        game = self.game_maker.make_game()
         agents = [self.agent, self.opponent_agent]
         if not self.gameReviewer:
             self.gameReviewer = GameReviewer(game=game, agents=agents, view_width=self.view_width)
