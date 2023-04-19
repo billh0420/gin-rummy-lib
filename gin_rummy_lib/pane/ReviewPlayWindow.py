@@ -19,6 +19,7 @@ class ReviewPlayWindow(pn.Column):
         self.game_pane = self.review_play_pane.game_pane
         self.info_table_pane = self.review_play_pane.info_table_pane
         self.play_match_button = self.review_play_pane.play_match_control.play_match_button
+        self.max_review_episodes_input = self.review_play_pane.play_match_control.max_review_episodes_input
         self.row_slider = self.review_play_pane.row_slider
         self.row_discrete_player = self.review_play_pane.row_discrete_player
 
@@ -59,7 +60,7 @@ class ReviewPlayWindow(pn.Column):
         self.review_play_pane.play_match_control.play_match_status.object = f'Running {event.new}'
 
 		### play review match; dataframe will change
-        self.world.play_review_match(max_review_episodes=self.world.max_review_episodes)
+        self.world.play_review_match(max_review_episodes=self.max_review_episodes_input.value)
 
         max_rows = len(self.dataframe)
 
