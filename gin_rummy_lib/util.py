@@ -13,6 +13,8 @@ import rlcard.games.gin_rummy.utils.utils as gin_rummy_utils
 from rlcard.games.base import Card
 from rlcard.games.gin_rummy.utils.utils import get_rank_id, get_suit_id
 
+from rlcard.games.gin_rummy.utils.settings import Setting, Settings
+
 def get_current_time():
     return datetime.now(timezone('America/Chicago')).strftime('%I:%M:%S %p')
 
@@ -87,4 +89,32 @@ def get_player_rows(player_id:int, trajectories):
         action = trajectory[2 * index + 1]
         row = get_player_row(state=state, action=action)
         result.append(row)
+    return result
+
+def game_settings_to_dict(settings: Settings):
+    result = dict()
+    default_setting = Setting.default_setting()
+    for key, value in default_setting.items():
+            if key == Setting.dealer_for_round:
+                result[key] = settings.dealer_for_round
+            elif key == Setting.stockpile_dead_card_count:
+                result[key] = settings.stockpile_dead_card_count
+            elif key == Setting.going_out_deadwood_count:
+                result[key] = settings.going_out_deadwood_count
+            elif key == Setting.max_drawn_card_count:
+                result[key] = settings.max_drawn_card_count
+            elif key == Setting.max_move_count:
+                result[key] = settings.max_move_count
+            elif key == Setting.is_allowed_knock:
+                result[key] = settings.is_allowed_knock
+            elif key == Setting.is_allowed_gin:
+                result[key] = settings.is_allowed_gin
+            elif key == Setting.is_allowed_pick_up_discard:
+                result[key] = settings.is_allowed_pick_up_discard
+            elif key == Setting.is_allowed_to_discard_picked_up_card:
+                result[key] = settings.is_allowed_to_discard_picked_up_card
+            elif key == Setting.is_always_knock:
+                result[key] = settings.is_always_knock
+            elif key == Setting.is_south_never_knocks:
+                result[key] = settings.is_south_never_knocks
     return result

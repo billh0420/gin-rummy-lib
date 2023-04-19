@@ -11,6 +11,7 @@ from rlcard.games.gin_rummy.utils.settings import Setting, Settings
 from rlcard.models.gin_rummy_rule_models import GinRummyNoviceRuleAgent
 
 from util import get_current_time
+from util import game_settings_to_dict
 from DQNAgentConfig import DQNAgentConfig
 from RLTrainerConfig import RLTrainerConfig
 from RLTrainer import RLTrainer
@@ -23,13 +24,6 @@ class World:
     def __init__(self, game_maker:GameMaker, world_dir:str or None = None):
         self.game_maker = game_maker
         self.world_dir = world_dir if world_dir else os.path.abspath('.')
-        # Game settings
-        if not os.path.exists(self.game_settings_path):
-            default_game_settings = Setting.default_setting()
-            default_game_settings_dict = dict((k.value, v) for (k, v) in default_game_settings.items())
-            game_settings_df = pd.DataFrame([default_game_settings_dict])
-            game_settings_df.to_json(self.game_settings_path)
-        self.game_settings = pd.read_json(self.game_settings_path)
 
         # Define configs
         self.dqn_agent_config = DQNAgentConfig()
@@ -48,13 +42,6 @@ class World:
         # opponents
         self.opponents = []
         self.opponents.append(GinRummyNoviceRuleAgent())
-
-    def save_game_settings(self):
-        self.game_settings.to_json(self.game_settings_path)
-
-    @property
-    def game_settings_path(self):
-        return os.path.join(self.world_dir, f'game_settings.json')
     
     @property
     def agent_dir(self):
@@ -65,14 +52,14 @@ class World:
     def agent_path(self):
         config = self.dqn_agent_config
         return f'{self.agent_dir}/{config.model_name}.pth'
-    
+
+    @property
+    def game_settings(self):
+        return self.game_maker.make_game().settings
+
     @property
     def game_settings_dict(self):
-        result = dict()
-        world_game_settings_dicts = self.game_settings.to_dict(orient='records')
-        if len(world_game_settings_dicts) == 1:
-            result = world_game_settings_dicts[0]
-        return result
+        return game_settings_to_dict(settings=self.game_settings)
 
     def get_game_num_actions(self) -> int:
         game = self.game_maker.make_game()
