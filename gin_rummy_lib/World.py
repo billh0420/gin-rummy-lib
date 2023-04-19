@@ -34,7 +34,6 @@ class World:
         self.opponent_agent = GinRummyNoviceRuleAgent()
 
         # GameReviewer
-        self.max_review_episodes = 100
         self.view_width = 1200
         self.gameReviewer = None
         self.play_review_match(max_review_episodes=0)
