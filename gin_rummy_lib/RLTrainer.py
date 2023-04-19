@@ -4,8 +4,6 @@ import pandas as pd
 import rlcard
 from rlcard.utils import Logger, plot_curve, tournament, reorganize
 
-from util import get_player_rows
-
 import DQNAgentConfig
 import RLTrainerConfig
 
@@ -31,8 +29,6 @@ class RLTrainer:
         env.game = self.game
         env.set_agents(self.agents)
 
-        all_rows = []
-
         # Start training
         with Logger(self.log_dir) as logger:
             for episode in range(num_episodes):
@@ -42,10 +38,6 @@ class RLTrainer:
 
                 # Generate data from the environment
                 trajectories, payoffs = env.run(is_training=True)
-
-                # wch: extra       
-                rows = get_player_rows(player_id=0, trajectories=trajectories)
-                all_rows.extend(rows)
 
                 # Reorganaize the data to be state, action, reward, next_state, done
                 trajectories = reorganize(trajectories, payoffs)
@@ -76,9 +68,3 @@ class RLTrainer:
         save_path = os.path.join(self.log_dir, f'{self.model_name}.pth')
         torch.save(self.agents[0], save_path)
         print('Model saved in', save_path)
-
-        # Save all_rows
-        df_save_path = os.path.join(self.log_dir, 'all_rows.json')
-        columns = ['held_cards_num', 'top_card_num', 'dead_cards_num', 'opponent_known_cards_num', 'unknown_cards_num', 'legal_actions', 'action']
-        df = pd.DataFrame(all_rows, columns = columns)
-        df.to_json(df_save_path)

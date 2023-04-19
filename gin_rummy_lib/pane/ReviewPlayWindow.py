@@ -26,8 +26,6 @@ class ReviewPlayWindow(pn.Column):
         self.append(self.review_play_pane)
 
         self.background = 'green'
-        #self.width = 1200
-        #self.height = 1000
 
         ### hook up row_slider
         self.row_slider.param.watch(self.update_info_table_pane_by_event, 'value')
