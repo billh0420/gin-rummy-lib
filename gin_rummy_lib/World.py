@@ -9,13 +9,13 @@ from rlcard.agents import DQNAgent
 from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.games.gin_rummy.utils.settings import Setting, Settings
 from rlcard.models.gin_rummy_rule_models import GinRummyNoviceRuleAgent
+from GinRummyRookie01RuleAgent import GinRummyRookie01RuleAgent
 
 from util import get_current_time
 from util import game_settings_to_dict
 from DQNAgentConfig import DQNAgentConfig
 from RLTrainerConfig import RLTrainerConfig
 from RLTrainer import RLTrainer
-from GinRummyRookie01RuleAgent import GinRummyRookie01RuleAgent
 from GameReviewer import GameReviewer
 from GameMaker import GameMaker
 
@@ -31,7 +31,7 @@ class World:
 
         # More stuff
         self.agent = self.create_dqn_agent()
-        self.opponent_agent = GinRummyNoviceRuleAgent()
+        self.opponent_agent = GinRummyRookie01RuleAgent()
 
         # GameReviewer
         self.view_width = 1200
