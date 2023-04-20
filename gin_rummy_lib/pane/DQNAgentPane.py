@@ -18,6 +18,10 @@ class DQNAgentPane(pn.pane.Markdown):
     
     def get_markdown(self, dqn_agent: DQNAgent):
         defaultConfig = DQNAgentConfig()
+        model_name = ''
+        save_path = dqn_agent.save_path
+        if save_path:
+            model_name, file_ext = os.path.splitext(os.path.basename(save_path))
         markdown = f"""
             <div class="special_table"></div>
             | Name | Value | Default |
@@ -35,6 +39,6 @@ class DQNAgentPane(pn.pane.Markdown):
             | num_actions | {dqn_agent.q_estimator.num_actions} | {defaultConfig.num_actions} |
             | state_shape | {dqn_agent.q_estimator.state_shape} | {defaultConfig.state_shape} |
             | mlp_layers | {dqn_agent.q_estimator.mlp_layers} | {defaultConfig.mlp_layers} |
-            | model_name | ??? | {defaultConfig.model_name} |
+            | model_name | {model_name} | {defaultConfig.model_name} |
         """
         return markdown
