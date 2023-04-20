@@ -14,7 +14,7 @@ from rlcard.games.gin_rummy.utils.scorers import GinRummyScorer
 class GinRummyScorer230402(GinRummyScorer):
 
     def __init__(self):
-        self.name = "GinRummyScorer230402"
+        self.name = 'GinRummyScorer230402: win_or_lose'
 
     def get_payoffs(self, game: GinRummyGame):
         payoffs = [0, 0]

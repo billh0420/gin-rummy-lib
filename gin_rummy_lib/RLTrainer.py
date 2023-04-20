@@ -23,8 +23,10 @@ class RLTrainer:
 
     def train(self, num_episodes:int):
         evaluate_every = max(1, min(num_episodes // 20, 10000))
+        print(f'----- Overrides -----')
         print(f'actual num_episodes={num_episodes}')
         print(f'actual evaluate_every={evaluate_every}')
+        print(f'---------------------')
         env = rlcard.make('gin-rummy', config={'seed': None})
         env.game = self.game
         env.set_agents(self.agents)
