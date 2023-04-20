@@ -3,7 +3,7 @@ import param
 
 from World import World
 from RLTrainerConfig import RLTrainerConfig
-from pane.TrainerPane import TrainerPane
+from pane.RLTrainerPane import RLTrainerPane
 
 class WorldRLTrainerSettingsView(param.Parameterized):
 
@@ -33,7 +33,7 @@ class WorldRLTrainerSettingsView(param.Parameterized):
         defaultConfig = RLTrainerConfig()
         config = self.world.rl_trainer_config
         title = pn.pane.Markdown(f'### RL Trainer Settings')
-        body = TrainerPane(world=self.world)
+        body = RLTrainerPane(world=self.world)
         return pn.Column(title, body, sizing_mode = 'stretch_width')
     
     def update(self):

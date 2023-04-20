@@ -3,7 +3,7 @@ import panel as pn
 from World import World
 from pane.ReviewPlayWindow import ReviewPlayWindow
 from pane.DQNAgentPane import DQNAgentPane
-from pane.TrainerPane import TrainerPane
+from pane.RLTrainerPane import RLTrainerPane
 from pane.GameSettingsPane import GameSettingsPane
 
 class ReviewMatchGamesWindow(pn.Tabs):
@@ -12,7 +12,7 @@ class ReviewMatchGamesWindow(pn.Tabs):
         super().__init__()
         self.append(('Review', ReviewPlayWindow(world=world)))
         self.append(('DQNAgent', self.dqn_agent_view(world=world)))
-        self.append(('Trainer', self.trainer_view(world=world)))
+        self.append(('RL Trainer', self.rl_trainer_view(world=world)))
         self.append(('GameSettings', GameSettingsPane(world=world)))
         self.dynamic = True
         self.height = 800
@@ -24,8 +24,8 @@ class ReviewMatchGamesWindow(pn.Tabs):
         dqn_agent_view.width_policy = 'max'
         return dqn_agent_view
 
-    def trainer_view(self, world):
-        trainer_title = pn.pane.Markdown("# RL Trainer Settings")
-        trainer_pane = TrainerPane(world=world)
-        trainer_view = pn.Column(trainer_title, trainer_pane, sizing_mode = 'stretch_width')
-        return trainer_view
+    def rl_trainer_view(self, world):
+        rl_trainer_title = pn.pane.Markdown("# RL Trainer Settings")
+        rl_trainer_pane = RLTrainerPane(world=world)
+        rl_trainer_view = pn.Column(rl_trainer_title, rl_trainer_pane, sizing_mode = 'stretch_width')
+        return rl_trainer_view
