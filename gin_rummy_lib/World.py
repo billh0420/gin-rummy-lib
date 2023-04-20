@@ -133,6 +133,6 @@ class World:
                 train_every=config.train_every,
                 mlp_layers=config.mlp_layers,
                 learning_rate=config.learning_rate,
-                device=device
+                device=device,
                 save_path=self.agent_path)
         return agent
