@@ -10,6 +10,8 @@ from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.games.gin_rummy.utils.settings import Setting, Settings
 from rlcard.models.gin_rummy_rule_models import GinRummyNoviceRuleAgent
 from GinRummyRookie01RuleAgent import GinRummyRookie01RuleAgent
+from GinRummyLoserRuleAgent import GinRummyLoserRuleAgent
+from rlcard.agents.random_agent import RandomAgent
 
 from util import get_current_time
 from util import game_settings_to_dict
@@ -30,8 +32,12 @@ class World:
         self.rl_trainer_config = RLTrainerConfig()
 
         # More stuff
+        num_actions = self.get_game_num_actions()
         self.agent = self.create_dqn_agent()
+        self.opponent_agent = RandomAgent(num_actions=num_actions)
+        self.opponent_agent = GinRummyNoviceRuleAgent()
         self.opponent_agent = GinRummyRookie01RuleAgent()
+        self.opponent_agent = GinRummyLoserRuleAgent()
 
         # GameReviewer
         self.view_width = 1200
@@ -75,6 +81,8 @@ class World:
             # Print current configuration
             print("Starting training")
             game.settings.print_settings()
+            print(f'actual scorer_name={game.judge.scorer.name}')
+            print(f'==============================')
             print(f"Start: {get_current_time()}")
             print(self.dqn_agent_config)
             print(self.rl_trainer_config)
