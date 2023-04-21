@@ -23,6 +23,7 @@ class WorldDQNAgentConfigWindow(pn.Column):
         self.dqn_agent_config_view.height_policy = 'max'
 
         content = pn.Row(self.controls, self.dqn_agent_config_view)
+        content.margin = [0, 10, 10, 10]
         self.append(window_title)
         self.append(content)
         self.width_policy = 'max'
@@ -70,6 +71,7 @@ class WorldDQNAgentConfigWindow(pn.Column):
         #             num_actions=num_actions, # Note this: kludge
         #             state_shape=state_shape, # Note this: kludge
         #             train_every=self.train_every,
+        #             save_every=self.save_every,
         #             mlp_layers=mlp_layers, # Note this: kludge
         #             #device=device,
         #             learning_rate=self.learning_rate)
@@ -89,6 +91,7 @@ class WorldDQNAgentConfigWindow(pn.Column):
         dqn_agent_config.epsilon_decay_steps = self.controls.epsilon_decay_steps_input.value
         dqn_agent_config.batch_size = self.controls.batch_size_input.value
         dqn_agent_config.train_every = self.controls.train_every_input.value
+        dqn_agent_config.save_every = self.controls.save_every_input.value
         dqn_agent_config.learning_rate = self.controls.learning_rate_input.value
         dqn_agent_config.num_actions = self.controls.num_actions_input.value
         try:
@@ -118,6 +121,7 @@ class WorldDQNAgentConfigControls(pn.Row):
         max_epsilon_decay_steps = 20000
         max_batch_size = 128
         max_train_every = 10000
+        max_save_every = 100000
         max_learning_rate = 1.0
         max_num_actions = 1000
 
@@ -132,6 +136,7 @@ class WorldDQNAgentConfigControls(pn.Row):
         epsilon_decay_steps = min(dqn_agent_config.epsilon_decay_steps, max_epsilon_decay_steps)
         batch_size = min(dqn_agent_config.batch_size, max_batch_size)
         train_every = min(dqn_agent_config.train_every, max_train_every)
+        save_every = min(dqn_agent_config.save_every, max_save_every)
         learning_rate = min(dqn_agent_config.learning_rate, max_learning_rate)
         state_shape = str(dqn_agent_config.state_shape)
         mlp_layers = str(dqn_agent_config.mlp_layers)
@@ -144,7 +149,7 @@ class WorldDQNAgentConfigControls(pn.Row):
         self.margin_y = 4
 
         self.value_controls = []
-        self.columns = [pn.Column(), pn.Column(), pn.Column()]
+        self.columns = [pn.Column(), pn.Column()]
 
         self.column_index = 0
         self.replay_memory_size_input = self.make_int_input(name='replay_memory_size', value=replay_memory_size, start=1000, end=max_replay_memory_size, step=1000)
@@ -156,6 +161,7 @@ class WorldDQNAgentConfigControls(pn.Row):
         self.epsilon_decay_steps_input = self.make_float_input(name='epsilon_decay_steps', value=epsilon_decay_steps, end=max_epsilon_decay_steps)
         self.batch_size_input = self.make_int_input(name='batch_size', value=batch_size, end=max_batch_size)
         self.train_every_input = self.make_int_input(name='train_every', value=train_every, end=max_train_every)
+        self.save_every_input = self.make_int_input(name='save_every', value=save_every, end=max_save_every)
         self.learning_rate_input = self.make_float_input(name='learning_rate', value=learning_rate, end=max_learning_rate)
 
         self.column_index = 1
@@ -163,18 +169,19 @@ class WorldDQNAgentConfigControls(pn.Row):
         self.state_shape_input = self.make_text_input(name='state_shape', value=state_shape)
         self.mlp_layers_input = self.make_text_input(name='mlp_layers', value=mlp_layers) # [128, 128, 128]  # [128, 128, 128] # [64, 64, 64] # [64, 64]
 
-        self.column_index = 2
         self.model_name_input = self.make_text_input(name='model_name', value=model_name)
         self.create_dqn_agent_button = self.make_button(name='Create DQN agent')
 
+        self.columns[0].margin = [0, 100, 0, 0] # kludge
+
         self.append(self.columns[0])
         self.append(self.columns[1])
-        self.append(self.columns[2])
     
     def make_int_input(self, name, value=0, start=0, end=10, step=1):
         result = pn.widgets.IntInput(name=name, value=value, start=start, end=end, step=step)
-        result.width_policy = 'min'
         result.min_width = 100
+        result.max_width = result.min_width
+        result.width_policy ='max'
         result.margin = [self.margin_y, self.margin_x, self.margin_y, self.margin_x]
         self.columns[self.column_index].append(result)
         self.value_controls.append(result)
@@ -182,8 +189,9 @@ class WorldDQNAgentConfigControls(pn.Row):
     
     def make_float_input(self, name, value=0, start=0, end=1, step=0.01):
         result = pn.widgets.FloatInput(name=name, value=value, start=start, end=end, step=step)
-        result.width_policy = 'min'
         result.min_width = 100
+        result.max_width = result.min_width
+        result.width_policy ='min'
         result.margin = [self.margin_y, self.margin_x, self.margin_y, self.margin_x]
         self.columns[self.column_index].append(result)
         self.value_controls.append(result)
@@ -197,7 +205,7 @@ class WorldDQNAgentConfigControls(pn.Row):
     
     def make_button(self, name: str):
         result = pn.widgets.Button(name=name)
-        result.width_policy = 'min'
+        # result.width_policy = 'min'
         self.columns[self.column_index].append(result)
         return result
 
@@ -224,6 +232,7 @@ class DQNAgentConfigPane(pn.pane.Markdown):
             | epsilon_decay_steps | {dqn_agent_config.epsilon_decay_steps} | {defaultConfig.epsilon_decay_steps} |
             | batch_size | {dqn_agent_config.batch_size} | {defaultConfig.batch_size} |
             | train_every | {dqn_agent_config.train_every} | {defaultConfig.train_every} |
+            | save_every | {dqn_agent_config.save_every} | {defaultConfig.save_every} |
             | learning_rate | {dqn_agent_config.learning_rate} | {defaultConfig.learning_rate} |
             | num_actions | {dqn_agent_config.num_actions} | {defaultConfig.num_actions} |
             | state_shape | {dqn_agent_config.state_shape} | {defaultConfig.state_shape} |

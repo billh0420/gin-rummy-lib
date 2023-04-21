@@ -36,6 +36,7 @@ class DQNAgentPane(pn.pane.Markdown):
             | epsilon_decay_steps | {dqn_agent.epsilon_decay_steps} | {defaultConfig.epsilon_decay_steps} |
             | batch_size | {dqn_agent.batch_size} | {defaultConfig.batch_size} |
             | train_every | {dqn_agent.train_every} | {defaultConfig.train_every} |
+            | save_every | {dqn_agent.save_every} | {defaultConfig.save_every} |
             | learning_rate | {dqn_agent.q_estimator.learning_rate} | {defaultConfig.learning_rate} |
             | num_actions | {dqn_agent.q_estimator.num_actions} | {defaultConfig.num_actions} |
             | state_shape | {dqn_agent.q_estimator.state_shape} | {defaultConfig.state_shape} |

@@ -6,17 +6,18 @@ class DQNAgentConfig:
         self.replay_memory_size = 200000 # 20000
         self.replay_memory_init_size = 1000 #100
         self.update_target_estimator_every = 1000
-        self.discount_factor=0.99
-        self.epsilon_start=1.0
-        self.epsilon_end=0.01 # 0.1
-        self.epsilon_decay_steps=20000
-        self.batch_size=128 #32
-        self.train_every=10 #1
+        self.discount_factor = 0.99
+        self.epsilon_start = 1.0
+        self.epsilon_end = 0.01 # 0.1
+        self.epsilon_decay_steps = 20000
+        self.batch_size = 128 #32
+        self.train_every = 10 #1
+        self.save_every = 1000
         self.learning_rate=0.00005 #0.00005
-        self.num_actions=110
+        self.num_actions = 110
         self.state_shape = [5, 52]
         self.mlp_layers = [128, 128, 128]  # [128, 128, 128] # [64, 64, 64] # [64, 64]
-        self.model_name='dqn_agent'
+        self.model_name ='dqn_agent'
     
     def to_dict(self):
         result = dict()
@@ -30,6 +31,7 @@ class DQNAgentConfig:
         result['epsilon_decay_steps'] = self.epsilon_decay_steps
         result['batch_size'] = self.batch_size
         result['train_every'] = self.train_every
+        result['save_every'] = self.save_every
         result['num_actions'] = self.num_actions
         result['mlp_layers'] = self.mlp_layers
         result['learning_rate'] = self.learning_rate
@@ -49,6 +51,7 @@ class DQNAgentConfig:
         lines.append(f'epsilon_decay_steps={self.epsilon_decay_steps}')
         lines.append(f'batch_size={self.batch_size}')
         lines.append(f'train_every={self.train_every}')
+        lines.append(f'save_every={self.save_every}')
         lines.append(f'num_actions={self.num_actions}')
         lines.append(f'mlp_layers={self.mlp_layers}')
         lines.append(f'learning_rate={self.learning_rate}')
