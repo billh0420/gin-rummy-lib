@@ -122,6 +122,7 @@ class World:
         result['epsilon_decay_steps'] = dqn_agent.epsilon_decay_steps
         result['batch_size'] = dqn_agent.batch_size
         result['train_every'] = dqn_agent.train_every
+        result['save_every'] = dqn_agent.save_every
         result['learning_rate'] = dqn_agent.q_estimator.learning_rate
         result['num_actions'] = dqn_agent.q_estimator.num_actions
         result['state_shape'] = dqn_agent.q_estimator.state_shape
@@ -151,6 +152,7 @@ class World:
                 num_actions=num_actions,
                 state_shape=state_shape,
                 train_every=config.train_every,
+                save_every=config.save_every,
                 mlp_layers=config.mlp_layers,
                 learning_rate=config.learning_rate,
                 device=device,
