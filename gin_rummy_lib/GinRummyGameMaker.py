@@ -21,6 +21,6 @@ class GinRummyGameMaker(GameMaker):
 
     def make_game_win_or_lose(self) -> GinRummyGame:
         game = GinRummyGame()
-        game.settings.max_move_count = 80
+        game.settings.max_move_count = 60
         game.judge.scorer = GinRummyScorer230402()
         return game

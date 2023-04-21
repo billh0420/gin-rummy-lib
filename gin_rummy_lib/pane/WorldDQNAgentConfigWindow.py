@@ -36,44 +36,47 @@ class WorldDQNAgentConfigWindow(pn.Column):
         self.controls.create_dqn_agent_button.on_click(self.create_dqn_agent)
 
     def create_dqn_agent(self, event):
-        agent = None
-        #device = get_device() # Check whether gpu is available
-        agent_path = self.world.agent_path
-        if os.path.exists(agent_path):
-            pass
-        else:
-            exception_error = None
-            try: # Note this: kludge
-                state_shape = to_int_list(self.state_shape)
-            except Exception as error:
-                exception_error = error
-            try: # Note this: kludge
-                mlp_layers = to_int_list(self.mlp_layers)
-            except Exception as error:
-                exception_error = error
-            if not exception_error:
-                game = GinRummyGame() # Note this
-                num_actions = game.get_num_actions()
-                agent = DQNAgent(
-                    replay_memory_size=self.replay_memory_size,
-                    replay_memory_init_size=self.replay_memory_init_size,
-                    update_target_estimator_every=self.update_target_estimator_every,
-                    discount_factor=self.discount_factor,
-                    epsilon_start=self.epsilon_start,
-                    epsilon_end=self.epsilon_end,
-                    epsilon_decay_steps=self.epsilon_decay_steps,
-                    batch_size=self.batch_size,
-                    num_actions=num_actions, # Note this: kludge
-                    state_shape=state_shape, # Note this: kludge
-                    train_every=self.train_every,
-                    mlp_layers=mlp_layers, # Note this: kludge
-                    #device=device,
-                    learning_rate=self.learning_rate)
-                torch.save(agent, agent_path)
-                self.batch_size = 60
-                #print(f'train_steps={agent.train_t} time_steps={agent.total_t}')
-                #print(agent.q_estimator.qnet)
         # FIXME: show fail/success message
+        dqn_agent = self.world.create_dqn_agent()
+        if dqn_agent:
+            self.world.agent = dqn_agent
+        # agent = None
+        # #device = get_device() # Check whether gpu is available
+        # agent_path = self.world.agent_path
+        # if os.path.exists(agent_path):
+        #     pass
+        # else:
+        #     exception_error = None
+        #     try: # Note this: kludge
+        #         state_shape = to_int_list(self.state_shape)
+        #     except Exception as error:
+        #         exception_error = error
+        #     try: # Note this: kludge
+        #         mlp_layers = to_int_list(self.mlp_layers)
+        #     except Exception as error:
+        #         exception_error = error
+        #     if not exception_error:
+        #         game = GinRummyGame() # Note this
+        #         num_actions = game.get_num_actions()
+        #         agent = DQNAgent(
+        #             replay_memory_size=self.replay_memory_size,
+        #             replay_memory_init_size=self.replay_memory_init_size,
+        #             update_target_estimator_every=self.update_target_estimator_every,
+        #             discount_factor=self.discount_factor,
+        #             epsilon_start=self.epsilon_start,
+        #             epsilon_end=self.epsilon_end,
+        #             epsilon_decay_steps=self.epsilon_decay_steps,
+        #             batch_size=self.batch_size,
+        #             num_actions=num_actions, # Note this: kludge
+        #             state_shape=state_shape, # Note this: kludge
+        #             train_every=self.train_every,
+        #             mlp_layers=mlp_layers, # Note this: kludge
+        #             #device=device,
+        #             learning_rate=self.learning_rate)
+        #         torch.save(agent, agent_path)
+        #         self.batch_size = 60
+        #         #print(f'train_steps={agent.train_t} time_steps={agent.total_t}')
+        #         #print(agent.q_estimator.qnet)
     
     def update(self, event):
         dqn_agent_config = self.world.dqn_agent_config
@@ -114,25 +117,24 @@ class WorldDQNAgentConfigControls(pn.Row):
         max_epsilon_end = 0.5 # 0.1
         max_epsilon_decay_steps = 20000
         max_batch_size = 128
-        max_train_every = 10
+        max_train_every = 10000
         max_learning_rate = 1.0
-
         max_num_actions = 1000
 
         # current values
-        dqn_agent = world.agent
-        replay_memory_size = min(dqn_agent.memory.memory_size, max_replay_memory_size)
-        replay_memory_init_size = min(dqn_agent.replay_memory_init_size, max_replay_memory_init_size)
-        update_target_estimator_every = min(dqn_agent.update_target_estimator_every, max_update_target_estimator_every)
-        discount_factor = min(dqn_agent.discount_factor, max_discount_factor)
-        epsilon_start = min(dqn_agent.epsilons[0], max_epsilon_start)
-        epsilon_end = min(dqn_agent.epsilons[-1], max_epsilon_end)
-        epsilon_decay_steps = min(dqn_agent.epsilon_decay_steps, max_epsilon_decay_steps)
-        batch_size = min(dqn_agent.batch_size, max_batch_size)
-        train_every = min(dqn_agent.train_every, max_train_every)
-        learning_rate = min(dqn_agent.q_estimator.learning_rate, max_learning_rate)
-        state_shape = str(dqn_agent.q_estimator.state_shape)
-        mlp_layers = str(dqn_agent.q_estimator.mlp_layers)
+        dqn_agent_config = world.dqn_agent_config
+        replay_memory_size = min(dqn_agent_config.replay_memory_size, max_replay_memory_size)
+        replay_memory_init_size = min(dqn_agent_config.replay_memory_init_size, max_replay_memory_init_size)
+        update_target_estimator_every = min(dqn_agent_config.update_target_estimator_every, max_update_target_estimator_every)
+        discount_factor = min(dqn_agent_config.discount_factor, max_discount_factor)
+        epsilon_start = min(dqn_agent_config.epsilon_start, max_epsilon_start)
+        epsilon_end = min(dqn_agent_config.epsilon_end, max_epsilon_end)
+        epsilon_decay_steps = min(dqn_agent_config.epsilon_decay_steps, max_epsilon_decay_steps)
+        batch_size = min(dqn_agent_config.batch_size, max_batch_size)
+        train_every = min(dqn_agent_config.train_every, max_train_every)
+        learning_rate = min(dqn_agent_config.learning_rate, max_learning_rate)
+        state_shape = str(dqn_agent_config.state_shape)
+        mlp_layers = str(dqn_agent_config.mlp_layers)
         model_name = world.dqn_agent_config.model_name
 
         num_actions = min(world.get_game_num_actions(), max_num_actions)

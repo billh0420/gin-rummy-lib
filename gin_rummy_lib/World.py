@@ -76,7 +76,6 @@ class World:
             game = self.game_maker.make_game()
             opponent = GinRummyRookie01RuleAgent()
             opponents = [opponent]
-            dqn_agent_config = self.dqn_agent_config
             rl_trainer_config = self.rl_trainer_config
             # Print current configuration
             print("Starting training")
@@ -84,7 +83,11 @@ class World:
             print(f'actual scorer_name={game.judge.scorer.name}')
             print(f'==============================')
             print(f"Start: {get_current_time()}")
-            print(self.dqn_agent_config)
+
+            print(f'----- DQN Agent Config -----')
+            for key, value in self.dqn_agent_to_dict(self.agent).items():
+                print(f'{key}: {value}')
+
             print(self.rl_trainer_config)
             print(f'train_steps={self.agent.train_t} time_steps={self.agent.total_t}')
             print('----- agent.q_estimator.qnet -----')
@@ -96,7 +99,6 @@ class World:
                 agent=self.agent,
                 opponents=opponents,
                 log_dir=self.agent_dir,
-                dqn_agent_config=dqn_agent_config,
                 rl_trainer_config=rl_trainer_config)
             rlTrainer.train(num_episodes=actual_num_episodes)
         else:
@@ -108,6 +110,24 @@ class World:
         if not self.gameReviewer:
             self.gameReviewer = GameReviewer(game=game, agents=agents, view_width=self.view_width)
         self.gameReviewer.play_review_match(game=game, agents=agents, max_review_episodes=max_review_episodes, view_width=self.view_width)
+    
+    def dqn_agent_to_dict(self, dqn_agent):
+        result = dict()
+        result['replay_memory_size'] = dqn_agent.memory.memory_size
+        result['replay_memory_init_size'] = dqn_agent.replay_memory_init_size
+        result['update_target_estimator_every'] = dqn_agent.update_target_estimator_every
+        result['discount_factor'] = dqn_agent.discount_factor
+        result['epsilon_start'] = dqn_agent.epsilons[0]
+        result['epsilon_end'] = dqn_agent.epsilons[-1]
+        result['epsilon_decay_steps'] = dqn_agent.epsilon_decay_steps
+        result['batch_size'] = dqn_agent.batch_size
+        result['train_every'] = dqn_agent.train_every
+        result['learning_rate'] = dqn_agent.q_estimator.learning_rate
+        result['num_actions'] = dqn_agent.q_estimator.num_actions
+        result['state_shape'] = dqn_agent.q_estimator.state_shape
+        result['mlp_layers'] = dqn_agent.q_estimator.mlp_layers
+        # result['model_name'] = dqn_agent.model_name
+        return result
 
     def create_dqn_agent(self):
         agent = None
