@@ -10,7 +10,6 @@ import RLTrainerConfig
 class RLTrainer:
 
     def __init__(self, game, agent, opponents, log_dir: str,
-                    dqn_agent_config: DQNAgentConfig,
                     rl_trainer_config: RLTrainerConfig):
         self.game = game
         self.agents = [agent] + opponents
@@ -18,7 +17,6 @@ class RLTrainer:
         self.num_episodes:int = rl_trainer_config.num_episodes
         self.num_eval_games:int = rl_trainer_config.num_eval_games
         self.log_dir = log_dir
-        self.model_name:str = dqn_agent_config.model_name
         self.evaluate_every = max(1, min(self.num_episodes // 20, 10000))
 
     def train(self, num_episodes:int):
@@ -67,6 +65,7 @@ class RLTrainer:
         plot_curve(csv_path, fig_path, self.algorithm)
 
         # Save model
-        save_path = os.path.join(self.log_dir, f'{self.model_name}.pth')
-        torch.save(self.agents[0], save_path)
+        agent = self.agents[0]
+        save_path = agent.save_path
+        torch.save(agent, save_path)
         print('Model saved in', save_path)
