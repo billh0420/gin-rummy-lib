@@ -99,6 +99,7 @@ class World:
                 agent=self.agent,
                 opponents=opponents,
                 log_dir=self.agent_dir,
+                model_name= self.dqn_agent_config.model_name,
                 rl_trainer_config=rl_trainer_config)
             rlTrainer.train(num_episodes=actual_num_episodes)
         else:
@@ -156,5 +157,5 @@ class World:
                 mlp_layers=config.mlp_layers,
                 learning_rate=config.learning_rate,
                 device=device,
-                save_path=self.agent_path)
+                save_path=self.agent_dir)
         return agent

@@ -1,5 +1,6 @@
 import panel as pn
 import torch
+import os
 
 from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.agents import DQNAgent
@@ -9,6 +10,39 @@ from DQNAgentConfig import DQNAgentConfig
 from util import to_int_list
 
 class WorldDQNAgentConfigWindow(pn.Column):
+
+    @staticmethod
+    def create_dqn_agent(config: DQNAgentConfig, world:World) -> DQNAgent or None:
+        agent = None
+        world_dir = world.world_dir
+        agent_dir = f'{world_dir}/{config.model_name}'
+        agent_path = f'{agent_dir}/{config.model_name}.pth'
+        if not os.path.exists(agent_dir):
+            num_actions = world.get_game_num_actions()
+            agent_path = f'{agent_dir}/{config.model_name}.pth'
+            state_shape = config.state_shape
+            agent = DQNAgent(
+                replay_memory_size=config.replay_memory_size,
+                replay_memory_init_size=config.replay_memory_init_size,
+                update_target_estimator_every=config.update_target_estimator_every,
+                discount_factor=config.discount_factor,
+                epsilon_start=config.epsilon_start,
+                epsilon_end=config.epsilon_end,
+                epsilon_decay_steps=config.epsilon_decay_steps,
+                batch_size=config.batch_size,
+                num_actions=num_actions,
+                state_shape=state_shape,
+                train_every=config.train_every,
+                save_every=config.save_every,
+                mlp_layers=config.mlp_layers,
+                learning_rate=config.learning_rate,
+                # device=device, # FIXME: 230421 is this ok?
+                save_path=agent_path)
+            os.makedirs(agent_dir)
+            torch.save(agent, agent.save_path)
+        elif os.path.exists(agent_path):
+            agent = torch.load(agent_path) # FIXME: 230421 is this ok?
+        return agent
 
     def __init__(self, world: World):
         super().__init__()
@@ -34,13 +68,14 @@ class WorldDQNAgentConfigWindow(pn.Column):
             control.param.watch(self.update, 'value')
 
         ### hook up create_dqn_agent_button
-        self.controls.create_dqn_agent_button.on_click(self.create_dqn_agent)
+        self.controls.create_dqn_agent_button.on_click(self.on_click_create_dqn_agent)
 
-    def create_dqn_agent(self, event):
+    def on_click_create_dqn_agent(self, event):
+        dqn_agent_config = self.world.dqn_agent_config # FIXME: 230421
+        dqn_agent = WorldDQNAgentConfigWindow.create_dqn_agent(config=dqn_agent_config, world=self.world)
         # FIXME: show fail/success message
-        dqn_agent = self.world.create_dqn_agent()
-        if dqn_agent:
-            self.world.agent = dqn_agent
+        if dqn_agent is None:
+            print(f'Cannot create dqn_agent.')
         # agent = None
         # #device = get_device() # Check whether gpu is available
         # agent_path = self.world.agent_path
