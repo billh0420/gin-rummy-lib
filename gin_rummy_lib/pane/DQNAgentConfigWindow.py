@@ -2,23 +2,20 @@ import panel as pn
 import torch
 import os
 
-from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.agents import DQNAgent
 
-from World import World
 from DQNAgentConfig import DQNAgentConfig
 from util import to_int_list
 
-class WorldDQNAgentConfigWindow(pn.Column):
+class DQNAgentConfigWindow(pn.Column):
 
     @staticmethod
-    def create_dqn_agent(config: DQNAgentConfig, world:World) -> DQNAgent or None:
+    def create_dqn_agent(config: DQNAgentConfig, world_dir:str) -> DQNAgent or None:
         agent = None
-        world_dir = world.world_dir
         agent_dir = f'{world_dir}/{config.model_name}'
         agent_path = f'{agent_dir}/{config.model_name}.pth'
         if not os.path.exists(agent_dir):
-            num_actions = world.get_game_num_actions()
+            num_actions = config.num_actions
             agent_path = f'{agent_dir}/{config.model_name}.pth'
             state_shape = config.state_shape
             agent = DQNAgent(
@@ -44,14 +41,16 @@ class WorldDQNAgentConfigWindow(pn.Column):
             agent = torch.load(agent_path) # FIXME: 230421 is this ok?
         return agent
 
-    def __init__(self, world: World):
+    def __init__(self, world_dir:str = '.'):
         super().__init__()
-        self.world = world
-        window_title = pn.pane.Markdown("# World DQN Agent Config Window")
-        self.controls = WorldDQNAgentConfigControls(world=world)
+        self.world_dir = world_dir
+        self.dqn_agent_config = DQNAgentConfig()
+
+        window_title = pn.pane.Markdown("# DQN Agent Config Window")
+        self.controls = DQNAgentConfigControls(dqn_agent_config=self.dqn_agent_config)
 
         title = pn.pane.Markdown("### DQN Agent Config Settings")
-        self.dqn_agent_config_pane = DQNAgentConfigPane(dqn_agent_config=world.dqn_agent_config)
+        self.dqn_agent_config_pane = DQNAgentConfigPane(dqn_agent_config=self.dqn_agent_config)
         self.dqn_agent_config_view = pn.Column(title, self.dqn_agent_config_pane)
         self.dqn_agent_config_view.width_policy = 'max'
         self.dqn_agent_config_view.height_policy = 'max'
@@ -71,8 +70,8 @@ class WorldDQNAgentConfigWindow(pn.Column):
         self.controls.create_dqn_agent_button.on_click(self.on_click_create_dqn_agent)
 
     def on_click_create_dqn_agent(self, event):
-        dqn_agent_config = self.world.dqn_agent_config # FIXME: 230421
-        dqn_agent = WorldDQNAgentConfigWindow.create_dqn_agent(config=dqn_agent_config, world=self.world)
+        dqn_agent_config = self.dqn_agent_config
+        dqn_agent = DQNAgentConfigWindow.create_dqn_agent(config=dqn_agent_config, world_dir=self.world_dir)
         # FIXME: show fail/success message
         if dqn_agent is None:
             print(f'Cannot create dqn_agent.')
@@ -116,8 +115,8 @@ class WorldDQNAgentConfigWindow(pn.Column):
         #         #print(agent.q_estimator.qnet)
     
     def update(self, event):
-        dqn_agent_config = self.world.dqn_agent_config
-        dqn_agent_config.replay_memory_siz = self.controls.replay_memory_size_input.value
+        dqn_agent_config = self.dqn_agent_config
+        dqn_agent_config.replay_memory_size = self.controls.replay_memory_size_input.value
         dqn_agent_config.replay_memory_init_size = self.controls.replay_memory_init_size_input.value
         dqn_agent_config.update_target_estimator_every = self.controls.update_target_estimator_every_input.value
         dqn_agent_config.discount_factor = self.controls.discount_factor_input.value
@@ -139,11 +138,11 @@ class WorldDQNAgentConfigWindow(pn.Column):
             pass
         dqn_agent_config.model_name = self.controls.model_name_input.value
 
-        self.dqn_agent_config_pane.object = self.dqn_agent_config_pane.get_markdown(dqn_agent_config=self.world.dqn_agent_config)
+        self.dqn_agent_config_pane.object = self.dqn_agent_config_pane.get_markdown(dqn_agent_config=self.dqn_agent_config)
 
-class WorldDQNAgentConfigControls(pn.Row):
+class DQNAgentConfigControls(pn.Row):
 
-    def __init__(self, world: World):
+    def __init__(self, dqn_agent_config: DQNAgentConfig):
         super().__init__()
 
         # max values
@@ -161,7 +160,6 @@ class WorldDQNAgentConfigControls(pn.Row):
         max_num_actions = 1000
 
         # current values
-        dqn_agent_config = world.dqn_agent_config
         replay_memory_size = min(dqn_agent_config.replay_memory_size, max_replay_memory_size)
         replay_memory_init_size = min(dqn_agent_config.replay_memory_init_size, max_replay_memory_init_size)
         update_target_estimator_every = min(dqn_agent_config.update_target_estimator_every, max_update_target_estimator_every)
@@ -175,9 +173,9 @@ class WorldDQNAgentConfigControls(pn.Row):
         learning_rate = min(dqn_agent_config.learning_rate, max_learning_rate)
         state_shape = str(dqn_agent_config.state_shape)
         mlp_layers = str(dqn_agent_config.mlp_layers)
-        model_name = world.dqn_agent_config.model_name
+        model_name = dqn_agent_config.model_name
 
-        num_actions = min(world.get_game_num_actions(), max_num_actions)
+        num_actions = min(dqn_agent_config.num_actions, max_num_actions)
 
         # begin init
         self.margin_x = 10
@@ -193,7 +191,7 @@ class WorldDQNAgentConfigControls(pn.Row):
         self.discount_factor_input = self.make_float_input(name='discount_factor', value=discount_factor, end=max_discount_factor)
         self.epsilon_start_input = self.make_float_input(name='epsilon_start', value=epsilon_start, end=max_epsilon_start)
         self.epsilon_end_input = self.make_float_input(name='epsilon_end', value=epsilon_end, end=max_epsilon_end)
-        self.epsilon_decay_steps_input = self.make_float_input(name='epsilon_decay_steps', value=epsilon_decay_steps, end=max_epsilon_decay_steps)
+        self.epsilon_decay_steps_input = self.make_int_input(name='epsilon_decay_steps', value=epsilon_decay_steps, end=max_epsilon_decay_steps)
         self.batch_size_input = self.make_int_input(name='batch_size', value=batch_size, end=max_batch_size)
         self.train_every_input = self.make_int_input(name='train_every', value=train_every, end=max_train_every)
         self.save_every_input = self.make_int_input(name='save_every', value=save_every, end=max_save_every)
