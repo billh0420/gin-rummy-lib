@@ -12,11 +12,12 @@ class DQNAgentConfigWindow(pn.Column):
     @staticmethod
     def create_dqn_agent(config: DQNAgentConfig, world_dir:str) -> DQNAgent or None:
         agent = None
-        agent_dir = f'{world_dir}/{config.model_name}'
+        agent_dir = f'{world_dir}/agents/{config.model_name}'
         agent_path = f'{agent_dir}/{config.model_name}.pth'
-        if not os.path.exists(agent_dir):
+        if os.path.exists(agent_path):
+            agent = torch.load(agent_path) # FIXME: 230421 is this ok?
+        else:
             num_actions = config.num_actions
-            agent_path = f'{agent_dir}/{config.model_name}.pth'
             state_shape = config.state_shape
             agent = DQNAgent(
                 replay_memory_size=config.replay_memory_size,
@@ -34,11 +35,10 @@ class DQNAgentConfigWindow(pn.Column):
                 mlp_layers=config.mlp_layers,
                 learning_rate=config.learning_rate,
                 # device=device, # FIXME: 230421 is this ok?
-                save_path=agent_path)
-            os.makedirs(agent_dir)
-            torch.save(agent, agent.save_path)
-        elif os.path.exists(agent_path):
-            agent = torch.load(agent_path) # FIXME: 230421 is this ok?
+                save_path=agent_dir)
+            if not os.path.exists(agent_dir):
+                os.makedirs(agent_dir)
+            torch.save(agent, agent_path)
         return agent
 
     def __init__(self, world_dir:str = '.'):

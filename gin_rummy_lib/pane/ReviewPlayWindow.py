@@ -4,6 +4,7 @@ from collections import OrderedDict
 from rlcard.games.gin_rummy.utils.action_event import ActionEvent
 
 from World import World
+from GameReviewer import GameReviewer
 from util import sortByRankBySuit
 
 class ReviewPlayWindow(pn.Column):
@@ -11,10 +12,11 @@ class ReviewPlayWindow(pn.Column):
     def __init__(self, world: World):
         super().__init__()
         self.world = world
-
+        self.view_width = 1200
         self.agents = [self.world.agent] + self.world.opponents
+        self.game_reviewer = GameReviewer(game=self.world.game_maker.make_game(), agents=self.agents, view_width=self.view_width)
 
-        self.review_play_pane = ReviewPlayPane(world=world)
+        self.review_play_pane = ReviewPlayPane(agents=self.agents, game_match=self.game_reviewer.game_match)
         self.review_play_pane.margin = 5
         self.game_pane = self.review_play_pane.game_pane
         self.info_table_pane = self.review_play_pane.info_table_pane
@@ -58,7 +60,7 @@ class ReviewPlayWindow(pn.Column):
         self.review_play_pane.play_match_control.play_match_status.object = f'Running {event.new}'
 
 		### play review match; dataframe will change
-        self.world.play_review_match(max_review_episodes=self.max_review_episodes_input.value)
+        self.play_review_match(max_review_episodes=self.max_review_episodes_input.value)
 
         max_rows = len(self.dataframe)
 
@@ -78,17 +80,21 @@ class ReviewPlayWindow(pn.Column):
         self.update_info_table_pane_by_row_id(row_id=0)
 
         self.review_play_pane.play_match_control.play_match_status.object = f'Finished {event.new}'
+            
+    def play_review_match(self, max_review_episodes: int):
+        game = self.world.game_maker.make_game()
+        agents = self.agents
+        self.game_reviewer.play_review_match(game=game, agents=agents, max_review_episodes=max_review_episodes, view_width=self.view_width)
 
     @property
     def dataframe(self):
-        return self.world.gameReviewer.game_match.dataframe
+        return self.game_reviewer.game_match.dataframe
 
 class ReviewPlayPane(pn.Column):
 
-    def __init__(self, world: World):
+    def __init__(self, agents, game_match):
         super().__init__()
-        agents = [world.agent] + world.opponents
-        dataframe = world.gameReviewer.game_match.dataframe
+        dataframe = game_match.dataframe
         max_rows = len(dataframe)
         title_pane = pn.pane.Markdown(f"### Review Play Games")
         self.play_match_control = PlayMatchControl(max_review_episodes=30)

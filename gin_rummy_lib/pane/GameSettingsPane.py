@@ -31,4 +31,4 @@ class GameSettingsPane(pn.Column):
         self.append(title_pane)
         self.append(pn.Row(setting_pane, default_setting_pane))
 
-        self.width = world.view_width
+        self.width = 1200
