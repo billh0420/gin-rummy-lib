@@ -22,7 +22,7 @@ class DQNAgentPane(pn.pane.Markdown):
         model_name = ''
         save_path = dqn_agent.save_path
         if save_path:
-            model_name, file_ext = os.path.splitext(os.path.basename(save_path))
+            model_name = os.path.basename(dqn_agent.save_path)
         markdown = f"""
             <div class="special_table"></div>
             | Name | Value | Default |

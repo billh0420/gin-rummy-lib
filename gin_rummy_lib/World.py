@@ -15,10 +15,8 @@ from rlcard.agents.random_agent import RandomAgent
 
 from util import get_current_time
 from util import game_settings_to_dict
-from DQNAgentConfig import DQNAgentConfig
 from RLTrainerConfig import RLTrainerConfig
 from RLTrainer import RLTrainer
-from GameReviewer import GameReviewer
 from GameMaker import GameMaker
 
 class World:
@@ -27,36 +25,49 @@ class World:
         self.game_maker = game_maker
         self.world_dir = world_dir if world_dir else os.path.abspath('.')
 
+        self.model_name = None # determines the training agent
+        self.model_name = 'dqn_agent' # FIXME: temp kludge
+
         # Define configs
-        self.dqn_agent_config = DQNAgentConfig()
         self.rl_trainer_config = RLTrainerConfig()
 
         # More stuff
         num_actions = self.get_game_num_actions()
-        self.agent = self.create_dqn_agent()
         self.opponent_agent = RandomAgent(num_actions=num_actions)
         self.opponent_agent = GinRummyNoviceRuleAgent()
         self.opponent_agent = GinRummyRookie01RuleAgent()
         self.opponent_agent = GinRummyLoserRuleAgent()
 
-        # GameReviewer
-        self.view_width = 1200
-        self.gameReviewer = None
-        self.play_review_match(max_review_episodes=0)
+    @property
+    def agent(self):
+        result = None
+        agent_path = self.agent_path
+        if agent_path and os.path.exists(agent_path):
+            result = torch.load(agent_path)
+        return result
 
-        # opponents
-        self.opponents = []
-        self.opponents.append(GinRummyNoviceRuleAgent())
-    
+    @property
+    def opponents(self):
+        opponent_agent = self.opponent_agent
+        if not opponent_agent:
+            opponent_agent = GinRummyNoviceRuleAgent()
+        return [opponent_agent]
+
     @property
     def agent_dir(self):
-        config = self.dqn_agent_config
-        return f'{self.world_dir}/{config.model_name}'
-    
+        result = None
+        agent_path = self.agent_path
+        if agent_path:
+            result = os.path.dirname(agent_path)
+        return result
+
     @property
     def agent_path(self):
-        config = self.dqn_agent_config
-        return f'{self.agent_dir}/{config.model_name}.pth'
+        result = None
+        model_name = self.model_name
+        if model_name:
+            result = f'{self.world_dir}/agents/{model_name}/{model_name}.pth'
+        return result
 
     @property
     def game_settings(self):
@@ -70,12 +81,12 @@ class World:
         game = self.game_maker.make_game()
         num_actions = game.get_num_actions()
         return num_actions
- 
+
     def play_train_match(self, num_episodes: int or None = None):
-        if self.agent:
+        agent_dir = self.agent_dir
+        agent = self.agent
+        if agent and agent_dir:
             game = self.game_maker.make_game()
-            opponent = GinRummyRookie01RuleAgent()
-            opponents = [opponent]
             rl_trainer_config = self.rl_trainer_config
             # Print current configuration
             print("Starting training")
@@ -85,33 +96,26 @@ class World:
             print(f"Start: {get_current_time()}")
 
             print(f'----- DQN Agent Config -----')
-            for key, value in self.dqn_agent_to_dict(self.agent).items():
+            for key, value in self.dqn_agent_to_dict(agent).items():
                 print(f'{key}: {value}')
 
             print(self.rl_trainer_config)
-            print(f'train_steps={self.agent.train_t} time_steps={self.agent.total_t}')
+            print(f'train_steps={agent.train_t} time_steps={agent.total_t}')
             print('----- agent.q_estimator.qnet -----')
-            print(self.agent.q_estimator.qnet)
+            print(agent.q_estimator.qnet)
             # train agent
             actual_num_episodes = num_episodes if num_episodes else self.rl_trainer_config.num_episodes
             rlTrainer = RLTrainer(
                 game=game,
-                agent=self.agent,
-                opponents=opponents,
-                log_dir=self.agent_dir,
-                model_name= self.dqn_agent_config.model_name,
+                agent=agent,
+                opponents=self.opponents,
+                log_dir=agent_dir,
+                model_name= self.model_name,
                 rl_trainer_config=rl_trainer_config)
             rlTrainer.train(num_episodes=actual_num_episodes)
         else:
-            print("You need to create a dqn_agent")
-            
-    def play_review_match(self, max_review_episodes: int):
-        game = self.game_maker.make_game()
-        agents = [self.agent, self.opponent_agent]
-        if not self.gameReviewer:
-            self.gameReviewer = GameReviewer(game=game, agents=agents, view_width=self.view_width)
-        self.gameReviewer.play_review_match(game=game, agents=agents, max_review_episodes=max_review_episodes, view_width=self.view_width)
-    
+            print("You need to select a dqn_agent")
+
     def dqn_agent_to_dict(self, dqn_agent):
         result = dict()
         result['replay_memory_size'] = dqn_agent.memory.memory_size
@@ -130,32 +134,3 @@ class World:
         result['mlp_layers'] = dqn_agent.q_estimator.mlp_layers
         # result['model_name'] = dqn_agent.model_name
         return result
-
-    def create_dqn_agent(self):
-        agent = None
-        config = self.dqn_agent_config
-        device = get_device() # Check whether gpu is available
-        if os.path.exists(self.agent_path):
-            agent = torch.load(self.agent_path, map_location=device)
-            agent.set_device(device)
-        else:
-            num_actions = self.get_game_num_actions()
-            state_shape = config.state_shape # state_shape for player_id = 0
-            agent = DQNAgent(
-                replay_memory_size=config.replay_memory_size,
-                replay_memory_init_size=config.replay_memory_init_size,
-                update_target_estimator_every=config.update_target_estimator_every,
-                discount_factor=config.discount_factor,
-                epsilon_start=config.epsilon_start,
-                epsilon_end=config.epsilon_end,
-                epsilon_decay_steps=config.epsilon_decay_steps,
-                batch_size=config.batch_size,
-                num_actions=num_actions,
-                state_shape=state_shape,
-                train_every=config.train_every,
-                save_every=config.save_every,
-                mlp_layers=config.mlp_layers,
-                learning_rate=config.learning_rate,
-                device=device,
-                save_path=self.agent_dir)
-        return agent
