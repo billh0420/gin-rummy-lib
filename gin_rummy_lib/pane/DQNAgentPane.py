@@ -11,12 +11,36 @@ from DQNAgentConfig import DQNAgentConfig
 
 class DQNAgentPane(pn.pane.Markdown):
 
+    @staticmethod
+    def dqn_agent_to_dict(dqn_agent: DQNAgent):
+        result = dict()
+        model_name = ''
+        save_path = dqn_agent.save_path
+        if save_path:
+            model_name = os.path.basename(dqn_agent.save_path)
+        result['replay_memory_size'] = dqn_agent.memory.memory_size
+        result['replay_memory_init_size'] = dqn_agent.replay_memory_init_size
+        result['update_target_estimator_every'] = dqn_agent.update_target_estimator_every
+        result['discount_factor'] = dqn_agent.discount_factor
+        result['epsilon_start'] = dqn_agent.epsilons[0]
+        result['epsilon_end'] = dqn_agent.epsilons[-1]
+        result['epsilon_decay_steps'] = dqn_agent.epsilon_decay_steps
+        result['batch_size'] = dqn_agent.batch_size
+        result['train_every'] = dqn_agent.train_every
+        result['save_every'] = dqn_agent.save_every
+        result['learning_rate'] = dqn_agent.q_estimator.learning_rate
+        result['num_actions'] = dqn_agent.q_estimator.num_actions
+        result['state_shape'] = dqn_agent.q_estimator.state_shape
+        result['mlp_layers'] = dqn_agent.q_estimator.mlp_layers
+        result['model_name'] = model_name
+        return result
+
     def __init__(self, dqn_agent: DQNAgent):
         super().__init__()
         markdown = self.get_markdown(dqn_agent=dqn_agent)
         self.width_policy = 'max'
         self.object = markdown
-    
+
     def get_markdown(self, dqn_agent: DQNAgent):
         defaultConfig = DQNAgentConfig()
         model_name = ''
