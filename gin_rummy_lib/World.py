@@ -19,6 +19,8 @@ from RLTrainerConfig import RLTrainerConfig
 from RLTrainer import RLTrainer
 from GameMaker import GameMaker
 
+from pane.DQNAgentPane import DQNAgentConfig
+
 class World:
 
     def __init__(self, game_maker:GameMaker, world_dir:str or None = None):
@@ -31,12 +33,24 @@ class World:
         # Define configs
         self.rl_trainer_config = RLTrainerConfig()
 
-        # More stuff
+        # opponents and current opponent
+        self.opponent_names = ['Random', 'Novice', 'Rookie01', 'Loser']
+        self.opponent_name = 'Novice'
+
+    @property
+    def opponent(self):
+        opponent = GinRummyNoviceRuleAgent()
+        opponent_name = self.opponent_name
         num_actions = self.get_game_num_actions()
-        self.opponent_agent = RandomAgent(num_actions=num_actions)
-        self.opponent_agent = GinRummyNoviceRuleAgent()
-        self.opponent_agent = GinRummyRookie01RuleAgent()
-        self.opponent_agent = GinRummyLoserRuleAgent()
+        if opponent_name == 'Random':
+            opponent = RandomAgent(num_actions=num_actions)
+        elif opponent_name == 'Novice':
+            opponent = GinRummyNoviceRuleAgent()
+        elif opponent_name == 'Rookie01':
+            opponent = GinRummyRookie01RuleAgent()
+        elif opponent_name == 'Loser':
+            opponent = GinRummyLoserRuleAgent()
+        return opponent
 
     @property
     def agent(self):
@@ -48,10 +62,10 @@ class World:
 
     @property
     def opponents(self):
-        opponent_agent = self.opponent_agent
-        if not opponent_agent:
-            opponent_agent = GinRummyNoviceRuleAgent()
-        return [opponent_agent]
+        opponent = self.opponent
+        if not opponent:
+            opponent = GinRummyNoviceRuleAgent()
+        return [opponent]
 
     @property
     def agent_dir(self):
@@ -96,7 +110,7 @@ class World:
             print(f"Start: {get_current_time()}")
 
             print(f'----- DQN Agent Config -----')
-            for key, value in self.dqn_agent_to_dict(agent).items():
+            for key, value in DQNAgentPane.dqn_agent_to_dict(agent).items():
                 print(f'{key}: {value}')
 
             print(self.rl_trainer_config)
@@ -115,22 +129,3 @@ class World:
             rlTrainer.train(num_episodes=actual_num_episodes)
         else:
             print("You need to select a dqn_agent")
-
-    def dqn_agent_to_dict(self, dqn_agent):
-        result = dict()
-        result['replay_memory_size'] = dqn_agent.memory.memory_size
-        result['replay_memory_init_size'] = dqn_agent.replay_memory_init_size
-        result['update_target_estimator_every'] = dqn_agent.update_target_estimator_every
-        result['discount_factor'] = dqn_agent.discount_factor
-        result['epsilon_start'] = dqn_agent.epsilons[0]
-        result['epsilon_end'] = dqn_agent.epsilons[-1]
-        result['epsilon_decay_steps'] = dqn_agent.epsilon_decay_steps
-        result['batch_size'] = dqn_agent.batch_size
-        result['train_every'] = dqn_agent.train_every
-        result['save_every'] = dqn_agent.save_every
-        result['learning_rate'] = dqn_agent.q_estimator.learning_rate
-        result['num_actions'] = dqn_agent.q_estimator.num_actions
-        result['state_shape'] = dqn_agent.q_estimator.state_shape
-        result['mlp_layers'] = dqn_agent.q_estimator.mlp_layers
-        # result['model_name'] = dqn_agent.model_name
-        return result
