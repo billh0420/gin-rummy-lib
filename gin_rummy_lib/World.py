@@ -19,7 +19,7 @@ from RLTrainerConfig import RLTrainerConfig
 from RLTrainer import RLTrainer
 from GameMaker import GameMaker
 
-from pane.DQNAgentPane import DQNAgentConfig
+from pane.DQNAgentPane import DQNAgentPane
 
 class World:
 
