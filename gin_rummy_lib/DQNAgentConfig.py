@@ -11,14 +11,14 @@ class DQNAgentConfig:
         self.epsilon_end = 0.01 # 0.1
         self.epsilon_decay_steps = 20000
         self.batch_size = 128 #32
-        self.train_every = 10 #1
-        self.save_every = 1000
+        self.train_every = 5 #1
+        self.save_every = 1000000
         self.learning_rate=0.00005 #0.00005
         self.num_actions = 110
         self.state_shape = [5, 52]
         self.mlp_layers = [128, 128, 128]  # [128, 128, 128] # [64, 64, 64] # [64, 64]
         self.model_name ='dqn_agent'
-    
+
     def to_dict(self):
         result = dict()
         result['state_shape'] = self.state_shape

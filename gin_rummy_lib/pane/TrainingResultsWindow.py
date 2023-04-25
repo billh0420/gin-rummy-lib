@@ -1,6 +1,9 @@
 import os
 import panel as pn
 import pandas as pd
+import csv
+
+import matplotlib.pyplot as plt
 
 from World import World
 
@@ -9,23 +12,44 @@ class TrainingResultsWindow(pn.Column):
     def __init__(self, world: World):
         super().__init__()
         self.agent_dir = world.agent_dir
-        self.log_view = self.get_log_view()
-        self.fig_view = self.get_fig_view()
-        self.performance_view = self.get_performance_view()
 
+        # Log
         self.log_title = pn.pane.Markdown("### Log")
-        self.fig_title = pn.pane.Markdown("### Reward by episode")
+        self.log_view = self.get_log_view()
+        log_cell = pn.Column(self.log_title, self.log_view)
+
+        # Reward by Episode
+        self.fig_title = pn.pane.Markdown("### Reward by Episode")
+        self.fig_view = self.get_fig_view()
+
+        # Cumulated Reward by Episode
+        cumulated_reward_fig_title = pn.pane.Markdown('### Cumulated Reward by Episode')
+        cumulated_performance_csv_path = f'{world.agent_dir}/cumulated_performance.csv'
+        cumulated_reward_fig_pane = TrainingResultsWindow.make_fig_pane(cumulated_performance_csv_path, algorithm='dqn', scale_factor=1)
+        cumulated_reward_fig_view = pn.Column(cumulated_reward_fig_title, cumulated_reward_fig_pane)
+
+        # Performance view
+        self.performance_view = self.get_performance_view()
         self.performance_title = pn.pane.Markdown("### Performance")
+        performance_cell = pn.Column(self.performance_title, self.performance_view)
+        fig_cell = pn.Column(self.fig_title, self.fig_view)
 
-        log_cell = pn.Column(self.log_title, self.log_view, margin=[0, 10, 10, 10], width_policy='max')
-        performance_cell = pn.Column(self.performance_title, self.performance_view, margin=[0, 10, 10, 10])
-        fig_cell = pn.Column(self.fig_title, self.fig_view, margin=[0, 10, 10, 10])
-
-        self.append(pn.Row(log_cell, fig_cell))
-        self.append(performance_cell)
+        # Window
+        content = pn.Row(pn.Column(log_cell, performance_cell), pn.Column(fig_cell, cumulated_reward_fig_view))
+        self.append(content)
         self.background = "green"
         self.width_policy = 'max'
-    
+
+        # margins
+        log_cell.margin = [0, 10, 10, 10]
+        performance_cell.margin = [0, 10, 10, 10]
+        fig_cell.margin=[0, 10, 10, 10]
+        content.margin = [0, 0, 0, 0]
+
+        # layout
+        log_cell.width_policy = 'max'
+        content.width_policy = 'max'
+
     def get_log_view(self):
         file_path = f'{self.agent_dir}/log.txt'
         if not os.path.exists(file_path):
@@ -38,7 +62,7 @@ class TrainingResultsWindow(pn.Column):
         log_view.height = 400
         log_view.width_policy = 'max'
         return log_view
-    
+
     def get_fig_view(self):
         file_path = f'{self.agent_dir}/fig.png'
         if not os.path.exists(file_path):
@@ -47,7 +71,7 @@ class TrainingResultsWindow(pn.Column):
         fig_view = pn.pane.PNG(file_path)
         fig_view.width = 400
         return fig_view
-    
+
     def get_performance_view(self):
         file_path = f'{self.agent_dir}/performance.csv'
         if not os.path.exists(file_path):
@@ -57,3 +81,32 @@ class TrainingResultsWindow(pn.Column):
         performance_view = pn.widgets.Tabulator(performance_df, layout='fit_data_stretch')
         performance_view.height = 400
         return performance_view
+
+    @staticmethod
+    def make_fig(csv_path, algorithm):
+        ''' Read data from csv file and return its plot
+        '''
+        with open(csv_path) as csvfile:
+            reader = csv.DictReader(csvfile)
+            xs = []
+            ys = []
+            for row in reader:
+                xs.append(int(row['episode']))
+                ys.append(float(row['reward']))
+            fig, ax = plt.subplots()
+            ax.plot(xs, ys, label=algorithm)
+            # ax.scatter(xs, ys, label=algorithm)
+            ax.set(xlabel='episode', ylabel='reward')
+            ax.legend()
+            ax.grid()
+        plt.close(fig)
+        return fig
+
+    @staticmethod
+    def make_fig_pane(csv_path, algorithm, scale_factor:float = 1):
+        if not os.path.exists(csv_path):
+            fig_view = pn.pane.Str("No figure")
+            return fig_view
+        fig = TrainingResultsWindow.make_fig(csv_path=csv_path, algorithm=algorithm)
+        fig_view = pn.pane.Matplotlib(fig, dpi=144 * scale_factor)
+        return fig_view
