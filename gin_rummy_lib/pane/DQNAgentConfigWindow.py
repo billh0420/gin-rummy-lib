@@ -113,7 +113,7 @@ class DQNAgentConfigWindow(pn.Column):
         #         self.batch_size = 60
         #         #print(f'train_steps={agent.train_t} time_steps={agent.total_t}')
         #         #print(agent.q_estimator.qnet)
-    
+
     def update(self, event):
         dqn_agent_config = self.dqn_agent_config
         dqn_agent_config.replay_memory_size = self.controls.replay_memory_size_input.value
@@ -154,8 +154,8 @@ class DQNAgentConfigControls(pn.Row):
         max_epsilon_end = 0.5 # 0.1
         max_epsilon_decay_steps = 20000
         max_batch_size = 128
-        max_train_every = 10000
-        max_save_every = 100000
+        max_train_every = 1000
+        max_save_every = 1000000
         max_learning_rate = 1.0
         max_num_actions = 1000
 
@@ -209,7 +209,7 @@ class DQNAgentConfigControls(pn.Row):
 
         self.append(self.columns[0])
         self.append(self.columns[1])
-    
+
     def make_int_input(self, name, value=0, start=0, end=10, step=1):
         result = pn.widgets.IntInput(name=name, value=value, start=start, end=end, step=step)
         result.min_width = 100
@@ -219,7 +219,7 @@ class DQNAgentConfigControls(pn.Row):
         self.columns[self.column_index].append(result)
         self.value_controls.append(result)
         return result
-    
+
     def make_float_input(self, name, value=0, start=0, end=1, step=0.01):
         result = pn.widgets.FloatInput(name=name, value=value, start=start, end=end, step=step)
         result.min_width = 100
@@ -229,13 +229,13 @@ class DQNAgentConfigControls(pn.Row):
         self.columns[self.column_index].append(result)
         self.value_controls.append(result)
         return result
-    
+
     def make_text_input(self, name: str, value: str = ''):
         result = pn.widgets.TextInput(name=name, value=value)
         self.columns[self.column_index].append(result)
         self.value_controls.append(result)
         return result
-    
+
     def make_button(self, name: str):
         result = pn.widgets.Button(name=name)
         # result.width_policy = 'min'
@@ -249,7 +249,7 @@ class DQNAgentConfigPane(pn.pane.Markdown):
         markdown = self.get_markdown(dqn_agent_config=dqn_agent_config)
         self.width_policy = 'max'
         self.object = markdown
-    
+
     def get_markdown(self, dqn_agent_config: DQNAgentConfig):
         defaultConfig = DQNAgentConfig()
         markdown = f"""
