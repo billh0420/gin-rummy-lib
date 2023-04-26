@@ -118,7 +118,7 @@ class World:
             print('----- agent.q_estimator.qnet -----')
             print(agent.q_estimator.qnet)
             # train agent
-            actual_num_episodes = num_episodes if num_episodes else self.rl_trainer_config.num_episodes
+            actual_num_episodes = num_episodes if num_episodes is not None else self.rl_trainer_config.num_episodes
             rlTrainer = RLTrainer(
                 game=game,
                 agent=agent,
