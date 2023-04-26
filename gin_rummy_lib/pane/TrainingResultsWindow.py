@@ -86,6 +86,7 @@ class TrainingResultsWindow(pn.Column):
     def make_fig(csv_path, algorithm):
         ''' Read data from csv file and return its plot
         '''
+        max_episodes = 60 # plot only last number of episodes
         with open(csv_path) as csvfile:
             reader = csv.DictReader(csvfile)
             xs = []
@@ -94,7 +95,7 @@ class TrainingResultsWindow(pn.Column):
                 xs.append(int(row['episode']))
                 ys.append(float(row['reward']))
             fig, ax = plt.subplots()
-            ax.plot(xs, ys, label=algorithm)
+            ax.plot(xs[-max_episodes:], ys[-max_episodes:], label=algorithm)
             # ax.scatter(xs, ys, label=algorithm)
             ax.set(xlabel='episode', ylabel='reward')
             ax.legend()

@@ -10,12 +10,12 @@ class ReviewMatchGamesWindow(pn.Tabs):
 
     def __init__(self, world: World):
         super().__init__()
-        self.append(('Review', ReviewPlayWindow(world=world)))
+        review_play_window = ReviewPlayWindow(world=world)
+        review_play_window.background = 'green'
+        self.append(('Review', review_play_window))
         self.append(('DQNAgent', self.dqn_agent_view(world=world)))
         self.append(('RL Trainer', self.rl_trainer_view(world=world)))
         self.append(('GameSettings', GameSettingsPane(world=world)))
-        self.dynamic = True
-        self.height = 800
 
     def dqn_agent_view(self, world):
         title = pn.pane.Markdown("# DQN Agent Settings")

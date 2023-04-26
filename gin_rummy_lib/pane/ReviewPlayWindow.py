@@ -12,9 +12,8 @@ class ReviewPlayWindow(pn.Column):
     def __init__(self, world: World):
         super().__init__()
         self.world = world
-        self.view_width = 1200
         self.agents = [self.world.agent] + self.world.opponents
-        self.game_reviewer = GameReviewer(game=self.world.game_maker.make_game(), agents=self.agents, view_width=self.view_width)
+        self.game_reviewer = GameReviewer(game=self.world.game_maker.make_game(), agents=self.agents)
 
         self.review_play_pane = ReviewPlayPane(agents=self.agents, game_match=self.game_reviewer.game_match)
         self.review_play_pane.margin = 5
@@ -27,7 +26,8 @@ class ReviewPlayWindow(pn.Column):
 
         self.append(self.review_play_pane)
 
-        self.background = 'green'
+        ### layout
+        self.width_policy = 'max'
 
         ### hook up row_slider
         self.row_slider.param.watch(self.update_info_table_pane_by_event, 'value')
@@ -37,7 +37,7 @@ class ReviewPlayWindow(pn.Column):
 
         ### hook up play_review_match_button
         self.play_match_button.on_click(self.update_window)
-    
+
     def update_info_table_pane_by_event(self, event):
         row_id = event.new
         self.row_discrete_player.value = row_id
@@ -52,7 +52,7 @@ class ReviewPlayWindow(pn.Column):
 
     def update_info_table_pane_by_row_id(self, row_id: int):
         self.info_table_pane.object = self.info_table_pane.make_info_table(dataframe=self.dataframe, row_id=row_id, agents=self.agents)
-    
+
     def update_game_pane_by_row_id(self, row_id: int):
         self.game_pane.object = self.game_pane.make_game_text(dataframe=self.dataframe, row_id=row_id, agents=self.agents)
 
@@ -68,23 +68,23 @@ class ReviewPlayWindow(pn.Column):
         self.row_slider.start = 0
         self.row_slider.value = 0
         self.row_slider.end = max_rows - 1
-        
+
         ### update row_discrete_player
         self.row_discrete_player.value = 0
         self.row_discrete_player.options = list(range(max_rows))
-        
+
         ### update game_pane
         self.update_game_pane_by_row_id(row_id=0)
-        
+
         ### update info_table_pane
         self.update_info_table_pane_by_row_id(row_id=0)
 
         self.review_play_pane.play_match_control.play_match_status.object = f'Finished {event.new}'
-            
+
     def play_review_match(self, max_review_episodes: int):
         game = self.world.game_maker.make_game()
         agents = self.agents
-        self.game_reviewer.play_review_match(game=game, agents=agents, max_review_episodes=max_review_episodes, view_width=self.view_width)
+        self.game_reviewer.play_review_match(game=game, agents=agents, max_review_episodes=max_review_episodes)
 
     @property
     def dataframe(self):
@@ -101,7 +101,7 @@ class ReviewPlayPane(pn.Column):
         self.select_using_filter_by_groups = SelectByGroups()
         self.row_slider = pn.widgets.IntSlider(name='row', start=0, end=max_rows - 1)
         self.row_discrete_player = pn.widgets.DiscretePlayer(name='Row', options=list(range(max_rows)), value=0, loop_policy='once', interval=1000 * 2)
-        self.info_table_pane = InfoTablePane(dataframe=dataframe, row_id=2, agents=agents) 
+        self.info_table_pane = InfoTablePane(dataframe=dataframe, row_id=2, agents=agents)
         self.game_pane = GamePane(dataframe=dataframe, row_id=0, agents=agents)
         self.append(title_pane)
         self.append(self.play_match_control)
@@ -112,6 +112,7 @@ class ReviewPlayPane(pn.Column):
         self.append(self.info_table_pane)
         self.row_slider.max_width = 600
         self.row_discrete_player.max_width = self.row_slider.max_width
+        self.width_policy = 'max'
 
 class PlayMatchControl(pn.Row):
 

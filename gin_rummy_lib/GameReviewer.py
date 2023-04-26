@@ -6,11 +6,11 @@ from GameMatch import GameMatch
 
 class GameReviewer:
 
-    def __init__(self, game:GinRummyGame, agents, view_width):
+    def __init__(self, game:GinRummyGame, agents):
         self.game_match = GameMatch(game=game, agents=agents, max_review_episodes=0)
         self.select_using_filter_by_groups = self.make_select_using_filter_by_groups()
-    
-    def play_review_match(self, game:GinRummyGame, agents, max_review_episodes, view_width):
+
+    def play_review_match(self, game:GinRummyGame, agents, max_review_episodes):
         self.game_match = GameMatch(game=game, agents=agents, max_review_episodes=max_review_episodes)
         self.select_using_filter_by_groups = self.make_select_using_filter_by_groups()
 
