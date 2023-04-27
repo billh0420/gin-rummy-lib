@@ -15,7 +15,7 @@ class TrainingResultsWindow(pn.Column):
 
         # Log
         self.log_title = pn.pane.Markdown("### Log")
-        self.log_view = self.get_log_view()
+        self.log_view = LogView(agent_dir=world.agent_dir)
         log_cell = pn.Column(self.log_title, self.log_view)
 
         # Reward by Episode
@@ -49,19 +49,6 @@ class TrainingResultsWindow(pn.Column):
         # layout
         log_cell.width_policy = 'max'
         content.width_policy = 'max'
-
-    def get_log_view(self):
-        file_path = f'{self.agent_dir}/log.txt'
-        if not os.path.exists(file_path):
-            log_view = pn.pane.Str("No log text")
-            return log_view
-        with open(file_path, 'r') as file:
-            log_txt = file.read()
-        log_txt_pane = pn.pane.Str(log_txt)
-        log_view = pn.Column(log_txt_pane, scroll=True, css_classes=['log-widget-box'])
-        log_view.height = 400
-        log_view.width_policy = 'max'
-        return log_view
 
     def get_fig_view(self):
         file_path = f'{self.agent_dir}/fig.png'
@@ -111,3 +98,23 @@ class TrainingResultsWindow(pn.Column):
         fig = TrainingResultsWindow.make_fig(csv_path=csv_path, algorithm=algorithm)
         fig_view = pn.pane.Matplotlib(fig, dpi=144 * scale_factor)
         return fig_view
+
+class LogView(pn.Column):
+
+    def __init__(self, agent_dir):
+        super().__init__()
+        file_path = f'{agent_dir}/log.txt'
+        log_text = f"No log.{'':20}"
+        if not os.path.exists(file_path):
+            log_text = f"No log.{'':20}"
+        else:
+            with open(file_path, 'r') as file:
+                log_text = file.read()
+                if len(log_text) == 0:
+                    log_text = f"No log.{'':20}"
+        log_text_pane = pn.pane.Str(log_text)
+        self.append(log_text_pane)
+        self.scroll = True
+        self.height = 400
+        self.css_classes = ['log-widget-box']
+        self.width_policy = 'max'
