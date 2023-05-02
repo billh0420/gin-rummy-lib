@@ -9,6 +9,8 @@ from rlcard.utils import get_device
 import DQNAgentConfig
 import RLTrainerConfig
 
+from GinRummyEnv2 import GinRummyEnv2
+
 class RLTrainer:
 
     def __init__(self, game, agent, opponents, log_dir: str, model_name: str, rl_trainer_config: RLTrainerConfig):
@@ -27,7 +29,8 @@ class RLTrainer:
         print(f'actual num_episodes={num_episodes}')
         print(f'actual evaluate_every={evaluate_every}')
         print(f'---------------------')
-        env = rlcard.make('gin-rummy', config={'seed': None})
+        # env = rlcard.make('gin-rummy', config={'seed': None})
+        env = GinRummyEnv2()
         env.game = self.game
         env.set_agents(self.agents)
 
