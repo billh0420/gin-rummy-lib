@@ -4,7 +4,7 @@ from rlcard.games.gin_rummy.utils import utils
 
 from DQNAgent230506 import DQNAgent230506
 
-class DefaultGinRummyDQNAgent(DQNAgent230506):
+class DQNAgent_Default(DQNAgent230506):
 
     # Note: Treat opponent's known cards as dead cards.
 
