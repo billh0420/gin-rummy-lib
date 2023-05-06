@@ -24,7 +24,8 @@ class Env2(object):
                 'rlcard/envs/blackjack.py'
                 TODO: Support more game configurations in the future.
         '''
-        self.allow_step_back = self.game.allow_step_back = config['allow_step_back']
+        self.agents = None
+        self.game.allow_step_back = config['allow_step_back']
         self.action_recorder = []
 
         # Game specific configurations
@@ -43,6 +44,10 @@ class Env2(object):
 
         # Set random seed, default is None
         self.seed(config['seed'])
+
+    @property
+    def allow_step_back(self) -> bool:
+        return self.game.allow_step_back
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

@@ -10,6 +10,14 @@ from Env2 import Env2
 
 class GinRummyEnv2(Env2):
 
+    @property
+    def judge(self):
+        return self.game.judge
+
+    @property
+    def scorer(self):
+        return self.game.judge.scorer
+
     def __init__(self):
         self.name = 'gin-rummy'
         self.game = GinRummyGame()
