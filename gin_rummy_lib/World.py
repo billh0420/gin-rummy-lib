@@ -2,6 +2,8 @@ import os
 import torch
 import pandas as pd
 import panel as pn
+import pathlib
+import glob
 
 from rlcard.utils import get_device
 from rlcard.agents import DQNAgent
@@ -129,3 +131,22 @@ class World:
             rlTrainer.train(num_episodes=actual_num_episodes)
         else:
             print("You need to select a dqn_agent")
+
+    @staticmethod
+    def get_absolute_path_for_folder(folder, search_root: str = '/content'): # default '/content' for google colab
+        result = None
+        possible_local_path = glob.glob(f'{search_root}/**/{folder}', recursive=True)
+        if len(possible_local_path) == 1:
+            result = pathlib.Path(possible_local_path[0]).resolve()
+        return result
+
+    @staticmethod
+    def enter_folder(folder:str, can_mkdir = True):
+        absolute_path = World.get_absolute_path_for_folder(folder=folder)
+        if absolute_path:
+            os.chdir(absolute_path)
+        elif can_mkdir:
+            os.mkdir(folder)
+            os.chdir(folder)
+        else:
+            print(f'No such folder: {folder}')

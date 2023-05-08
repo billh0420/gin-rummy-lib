@@ -372,7 +372,6 @@ class DQNAgent_230506(object):
         agent_instance.target_estimator = deepcopy(agent_instance.q_estimator)
         agent_instance.memory = Memory.from_checkpoint(checkpoint['memory'])
 
-
         return agent_instance
 
     def save_checkpoint(self, path, filename='checkpoint_dqn.pt'):
