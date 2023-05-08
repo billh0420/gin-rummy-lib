@@ -1,4 +1,4 @@
-from rlcard.utils import *
+from rlcard.utils import seeding
 
 class Env2(object):
     '''
