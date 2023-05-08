@@ -90,8 +90,8 @@ class DQNAgent_230506(object):
         device = None
         save_every = float('inf')
         model_name = 'dqn_agent'
+        save_path = None
         for key, value in config.to_dict().items():
-            print(f'{key}: {value}')
             if key == 'replay_memory_size':
                 replay_memory_size = value
             elif key == 'replay_memory_init_size':
@@ -124,8 +124,8 @@ class DQNAgent_230506(object):
                 save_every = value
             elif key == 'model_name':
                 model_name = value
-
-        save_path = None
+            elif key == 'save_path':
+                save_path = value
 
         self.use_raw = False
         self.replay_memory_init_size = replay_memory_init_size
@@ -135,6 +135,7 @@ class DQNAgent_230506(object):
         self.batch_size = batch_size
         self.num_actions = num_actions
         self.train_every = train_every
+        self.model_name = model_name
 
         # Torch device
         if device is None:
@@ -163,6 +164,30 @@ class DQNAgent_230506(object):
         # Checkpoint saving parameters
         self.save_path = save_path
         self.save_every = save_every
+
+    def __repr__(self): # 230506
+        lines = []
+        lines.append(f'state_shape={self.q_estimator.state_shape}')
+        lines.append(f'replay_memory_size={self.memory.memory_size}')
+        lines.append(f'replay_memory_init_size={self.replay_memory_init_size}')
+        lines.append(f'update_target_estimator_every={self.update_target_estimator_every}')
+        lines.append(f'discount_factor={self.discount_factor}')
+        lines.append(f'epsilon_start={self.epsilons[0]}')
+        lines.append(f'epsilon_end={self.epsilons[-1]}')
+        lines.append(f'epsilon_decay_steps={self.epsilon_decay_steps}')
+        lines.append(f'batch_size={self.batch_size}')
+        lines.append(f'train_every={self.train_every}')
+        lines.append(f'save_every={self.save_every}')
+        lines.append(f'num_actions={self.num_actions}')
+        lines.append(f'mlp_layers={self.q_estimator.mlp_layers}')
+        lines.append(f'learning_rate={self.q_estimator.learning_rate}')
+        lines.append(f'model_name={self.model_name}')
+        lines.append(f'save_path={self.save_path}')
+        lines.append(f'device={self.device}')
+        lines.append(f'use_raw={self.use_raw}')
+        lines.append(f'Total timesteps: total_t={self.total_t}')
+        lines.append(f'Total training steps: train_t={self.train_t}')
+        return '\n'.join(lines)
 
     # def feed(self, ts):
     #     ''' Store data in to replay buffer and train the agent. There are two stages.
