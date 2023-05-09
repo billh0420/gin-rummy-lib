@@ -54,21 +54,21 @@ class GinRummyLoserRuleAgent(object):
         Returns:
             action_id (int): the action_id predicted
         '''
-        legal_action_ids = state['raw_legal_actions']
-        legal_action_events = [ActionEvent.decode_action(x) for x in legal_action_ids]
+        agent_action_ids = state['raw_agent_actions']
+        legal_action_events = [ActionEvent.decode_action(x) for x in agent_action_ids]
         gin_action_events = [x for x in legal_action_events if isinstance(x, GinAction)]
         knock_action_events = [x for x in legal_action_events if isinstance(x, KnockAction)]
         discard_action_events = [x for x in legal_action_events if isinstance(x, DiscardAction)]
         action_ids = []
         if gin_action_events:
             action_ids = [x.action_id for x in gin_action_events]
-        elif declare_dead_hand_action_id in legal_action_ids:
+        elif declare_dead_hand_action_id in agent_action_ids:
             action_ids = [declare_dead_hand_action_id]
-        elif draw_card_action_id in legal_action_ids:
+        elif draw_card_action_id in agent_action_ids:
             action_ids = [draw_card_action_id]
         elif discard_action_events:
             action_ids = [x.action_id for x in discard_action_events]
         else:
-            action_ids = legal_action_ids
+            action_ids = agent_action_ids
         action_id = np.random.choice(action_ids)
         return action_id

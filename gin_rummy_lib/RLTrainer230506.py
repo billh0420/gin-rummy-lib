@@ -98,8 +98,8 @@ class RLTrainer230506:
             # update transitions
             if player_id == self.training_agent_id and prior_agent_state is not None:
                 # legal_action_ids = [x.action_id for x in game.judge.get_legal_actions()]
-                legal_actions = agent.get_legal_actions(player_id=player_id, game=game)
-                transition = Transition(state=prior_agent_state['obs'], action=prior_action_id, reward=0, next_state=agent_state['obs'], done=False, legal_actions=legal_actions)
+                agent_actions = agent.get_agent_actions(player_id=player_id, game=game)
+                transition = Transition(state=prior_agent_state['obs'], action=prior_action_id, reward=0, next_state=agent_state['obs'], done=False, agent_actions=agent_actions)
                 transitions.append(transition)
             # execute action
             if action_id in [x.action_id for x in game.judge.get_legal_actions()]:
@@ -115,7 +115,7 @@ class RLTrainer230506:
         if prior_agent_state is not None:
             reward = payoffs[self.training_agent_id]
             final_agent_state = agent.get_agent_state(player_id=self.training_agent_id, game=game)
-            transition = Transition(state=prior_agent_state['obs'], action=prior_action_id, reward=reward, next_state=final_agent_state['obs'], done=True, legal_actions=[])
+            transition = Transition(state=prior_agent_state['obs'], action=prior_action_id, reward=reward, next_state=final_agent_state['obs'], done=True, agent_actions=[])
             transitions.append(transition)
         return transitions
 
