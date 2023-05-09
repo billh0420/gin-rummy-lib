@@ -118,7 +118,7 @@ class Env2(object):
             # Environment steps
             self.step(action, self.agents[player_id].use_raw)
             next_player_id = self.get_player_id()
-            next_state = self.get_state(player_id=player_id)
+            next_state = self.get_state(player_id=next_player_id)
             # Save action
             trajectories[player_id].append(action)
 
@@ -165,15 +165,15 @@ class Env2(object):
         Returns:
             (numpy.array): The observed state of the player
         '''
-        env_state = None
+        agent_state = None
         if player_id < len(self.agents):
             agent = self.agents[player_id]
-            get_env_state_attr = getattr(agent, 'get_env_state', None)
-            if callable(get_env_state_attr):
-                env_state = agent.get_env_state(player_id=player_id, game=self.game)
-        if not env_state:
-            env_state = self._extract_state(self.game.get_state(player_id))
-        return env_state
+            get_agent_state_attr = getattr(agent, 'get_agent_state', None)
+            if callable(get_agent_state_attr):
+                agent_state = agent.get_agent_state(player_id=player_id, game=self.game)
+        if not agent_state:
+            agent_state = self._extract_state(self.game.get_state(player_id))
+        return agent_state
 
     def get_payoffs(self):
         ''' Get the payoffs of players. Must be implemented in the child class.

@@ -26,8 +26,8 @@ class Contest:
             move_at += 1
             player = self.game.round.players[player_id]
             agent = agents[player_id]
-            env_state = agent.get_env_state(player_id=player_id, game=self.game)
-            best_action, info = agent.eval_step(env_state)
+            agent_state = agent.get_agent_state(player_id=player_id, game=self.game)
+            best_action, info = agent.eval_step(agent_state)
             if best_action not in [x.action_id for x in self.game.judge.get_legal_actions()]:
                 tried_illegal_action = True
             else:

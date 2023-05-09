@@ -18,7 +18,7 @@ from rlcard.agents.random_agent import RandomAgent
 from util import get_current_time
 from util import game_settings_to_dict
 from RLTrainerConfig import RLTrainerConfig
-from RLTrainer import RLTrainer
+from RLTrainer230506 import RLTrainer230506
 from GameMaker import GameMaker
 
 from pane.DQNAgentPane import DQNAgentPane
@@ -120,15 +120,10 @@ class World:
             print('----- agent.q_estimator.qnet -----')
             print(agent.q_estimator.qnet)
             # train agent
+            agents = [agent] + self.opponents
             actual_num_episodes = num_episodes if num_episodes is not None else self.rl_trainer_config.num_episodes
-            rlTrainer = RLTrainer(
-                game=game,
-                agent=agent,
-                opponents=self.opponents,
-                log_dir=agent_dir,
-                model_name= self.model_name,
-                rl_trainer_config=rl_trainer_config)
-            rlTrainer.train(num_episodes=actual_num_episodes)
+            rlTrainer = RLTrainer230506()
+            rlTrainer.train(agents, game=game, num_episodes=num_episodes, num_eval_games=rl_trainer_config.num_eval_games)
         else:
             print("You need to select a dqn_agent")
 
