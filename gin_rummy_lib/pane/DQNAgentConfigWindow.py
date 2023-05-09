@@ -4,6 +4,7 @@ import os
 
 from rlcard.agents import DQNAgent
 
+from DQNAgent_230506 import DQNAgent_230506
 from DQNAgentConfig import DQNAgentConfig
 from util import to_int_list
 
@@ -17,25 +18,7 @@ class DQNAgentConfigWindow(pn.Column):
         if os.path.exists(agent_path):
             agent = torch.load(agent_path) # FIXME: 230421 is this ok?
         else:
-            num_actions = config.num_actions
-            state_shape = config.state_shape
-            agent = DQNAgent(
-                replay_memory_size=config.replay_memory_size,
-                replay_memory_init_size=config.replay_memory_init_size,
-                update_target_estimator_every=config.update_target_estimator_every,
-                discount_factor=config.discount_factor,
-                epsilon_start=config.epsilon_start,
-                epsilon_end=config.epsilon_end,
-                epsilon_decay_steps=config.epsilon_decay_steps,
-                batch_size=config.batch_size,
-                num_actions=num_actions,
-                state_shape=state_shape,
-                train_every=config.train_every,
-                save_every=config.save_every,
-                mlp_layers=config.mlp_layers,
-                learning_rate=config.learning_rate,
-                # device=device, # FIXME: 230421 is this ok?
-                save_path=agent_dir)
+            agent = DQNAgent_230506(config=config)
             if not os.path.exists(agent_dir):
                 os.makedirs(agent_dir)
             torch.save(agent, agent_path)
