@@ -63,9 +63,9 @@ class GinRummyRookie01RuleAgent(object):
         Returns:
             action_id (int): the action_id predicted
         '''
-        legal_action_ids = state['raw_legal_actions']
-        action_ids = legal_action_ids.copy()
-        legal_action_events = [ActionEvent.decode_action(x) for x in legal_action_ids]
+        agent_action_ids = state['raw_agent_actions']
+        action_ids = agent_action_ids.copy()
+        legal_action_events = [ActionEvent.decode_action(x) for x in agent_action_ids]
         gin_action_events = [x for x in legal_action_events if isinstance(x, GinAction)]
         knock_action_events = [x for x in legal_action_events if isinstance(x, KnockAction)]
         discard_action_events = [x for x in legal_action_events if isinstance(x, DiscardAction)]
@@ -77,10 +77,10 @@ class GinRummyRookie01RuleAgent(object):
             action_ids = [x.action_id for x in knock_action_events]
         elif discard_action_events:
             action_ids = self._decide_discard_action_ids(hand=hand, discard_action_events=discard_action_events)
-        elif pick_up_discard_action_id in legal_action_ids:
+        elif pick_up_discard_action_id in agent_action_ids:
             env_top_discard_card = state['obs'][1]
             top_discard_card = gin_rummy_utils.decode_cards(env_cards=env_top_discard_card)[0]
-            action_ids = self._decide_get_card_action_ids(top_discard_card=top_discard_card, hand=hand, legal_action_ids=legal_action_ids)
+            action_ids = self._decide_get_card_action_ids(top_discard_card=top_discard_card, hand=hand, agent_action_ids=agent_action_ids)
         return np.random.choice(action_ids)
 
     def _decide_discard_action_ids(self, hand: List[Card], discard_action_events: List[DiscardAction]) -> List[int]:
@@ -93,13 +93,13 @@ class GinRummyRookie01RuleAgent(object):
         return action_ids
 
     @staticmethod
-    def _decide_get_card_action_ids(top_discard_card: Card, hand: List[Card], legal_action_ids: List[int]) -> List[int]:
+    def _decide_get_card_action_ids(top_discard_card: Card, hand: List[Card], agent_action_ids: List[int]) -> List[int]:
         thinker = Thinker(hand=hand)
         meld_piles_with_discard_card = thinker.get_meld_piles_with_discard_card(discard_card=top_discard_card)
         if meld_piles_with_discard_card:
             action_ids = [pick_up_discard_action_id]
         else:
-            action_ids = [action for action in legal_action_ids]
+            action_ids = [action for action in agent_action_ids]
             if len(action_ids) > 1:
                 action_ids.remove(pick_up_discard_action_id)
         return action_ids

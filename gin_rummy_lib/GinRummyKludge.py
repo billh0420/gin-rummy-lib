@@ -9,7 +9,7 @@ class GinRummyKludge:
     def get_agent_state(self, player_id: int, game: GinRummyGame):
         if not game.is_over() and player_id != game.get_player_id():
             raise Exception("GinRummyKludge get_agent_state: agent is not current player.")
-        legal_actions = self.get_legal_actions(player_id=player_id, game=game)
+        agent_actions = self.get_agent_actions(player_id=player_id, game=game)
         player = game.round.players[player_id]
         opponent = game.round.players[(player_id + 1) % 2]
         stock_pile = game.round.dealer.stock_pile
@@ -32,12 +32,12 @@ class GinRummyKludge:
         obs = np.array(rep)
         env_state = dict()
         env_state['obs'] = obs
-        env_state['legal_actions'] = legal_actions
-        env_state['raw_legal_actions'] = list(legal_actions.keys())
+        env_state['agent_actions'] = agent_actions
+        env_state['raw_agent_actions'] = list(agent_actions.keys())
         env_state['raw_obs'] = obs
         return env_state
 
-    def get_legal_actions(self, player_id: int, game):
+    def get_agent_actions(self, player_id: int, game):
         if not game.is_over() and player_id != game.get_player_id():
             raise Exception("GinRummyKludge get_legal_actions: agent is not current player.")
         legal_actions = game.judge.get_legal_actions()

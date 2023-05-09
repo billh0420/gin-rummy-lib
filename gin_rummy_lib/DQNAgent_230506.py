@@ -38,7 +38,7 @@ from rlcard.games.gin_rummy.utils import utils
 
 from DQNAgentConfig import DQNAgentConfig
 
-Transition = namedtuple('Transition', ['state', 'action', 'reward', 'next_state', 'done', 'legal_actions'])
+Transition = namedtuple('Transition', ['state', 'action', 'reward', 'next_state', 'done', 'agent_actions'])
 
 
 class DQNAgent_230506(object):
@@ -224,7 +224,7 @@ class DQNAgent_230506(object):
     def get_agent_state(self, player_id: int, game: GinRummyGame): # 230506
         if not game.is_over() and player_id != game.get_player_id():
             raise Exception("GinRummyKludge get_agent_state: agent is not current player.")
-        legal_actions = self.get_legal_actions(player_id=player_id, game=game)
+        agent_actions = self.get_agent_actions(player_id=player_id, game=game)
         player = game.round.players[player_id]
         opponent = game.round.players[(player_id + 1) % 2]
         stock_pile = game.round.dealer.stock_pile
@@ -247,12 +247,12 @@ class DQNAgent_230506(object):
         obs = np.array(rep)
         env_state = dict()
         env_state['obs'] = obs
-        env_state['legal_actions'] = legal_actions
-        env_state['raw_legal_actions'] = list(legal_actions.keys())
+        env_state['agent_actions'] = agent_actions
+        env_state['raw_agent_actions'] = list(agent_actions.keys())
         env_state['raw_obs'] = obs
         return env_state
 
-    def get_legal_actions(self, player_id: int, game: GinRummyGame): # 230506
+    def get_agent_actions(self, player_id: int, game: GinRummyGame): # 230506
         if not game.is_over() and player_id != game.get_player_id():
             raise Exception("DQNAgent_230506 get_legal_actions: agent is not current player.")
         legal_actions = game.judge.get_legal_actions()
@@ -271,13 +271,13 @@ class DQNAgent_230506(object):
         '''
         q_values = self.predict(state)
         epsilon = self.epsilons[min(self.total_t, self.epsilon_decay_steps-1)]
-        legal_actions = list(state['legal_actions'].keys())
-        probs = np.ones(len(legal_actions), dtype=float) * epsilon / len(legal_actions)
-        best_action_idx = legal_actions.index(np.argmax(q_values))
+        agent_actions = list(state['agent_actions'].keys())
+        probs = np.ones(len(agent_actions), dtype=float) * epsilon / len(agent_actions)
+        best_action_idx = agent_actions.index(np.argmax(q_values))
         probs[best_action_idx] += (1.0 - epsilon)
         action_idx = np.random.choice(np.arange(len(probs)), p=probs)
 
-        return legal_actions[action_idx]
+        return agent_actions[action_idx]
 
     def eval_step(self, state):
         ''' Predict the action for evaluation purpose.
@@ -293,7 +293,7 @@ class DQNAgent_230506(object):
         best_action = np.argmax(q_values)
 
         info = {}
-        info['values'] = {state['raw_legal_actions'][i]: float(q_values[list(state['legal_actions'].keys())[i]]) for i in range(len(state['legal_actions']))}
+        info['values'] = {state['raw_agent_actions'][i]: float(q_values[list(state['agent_actions'].keys())[i]]) for i in range(len(state['agent_actions']))}
 
         return best_action, info
 
@@ -309,8 +309,8 @@ class DQNAgent_230506(object):
 
         q_values = self.q_estimator.predict_nograd(np.expand_dims(state['obs'], 0))[0]
         masked_q_values = -np.inf * np.ones(self.num_actions, dtype=float)
-        legal_actions = list(state['legal_actions'].keys())
-        masked_q_values[legal_actions] = q_values[legal_actions]
+        agent_actions = list(state['agent_actions'].keys())
+        masked_q_values[agent_actions] = q_values[agent_actions]
 
         return masked_q_values
 
