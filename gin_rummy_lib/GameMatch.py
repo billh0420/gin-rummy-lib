@@ -24,7 +24,7 @@ class GameMatch:
                 step += 1
                 agent = agents[player_id]
                 agent_state = agent.get_agent_state(player_id=player_id, game=game)
-                best_action_id, info = agent.eval_step(state=agent_state)
+                best_action_id = agent.eval_step(agent_state=agent_state)
                 best_action = ActionEvent.decode_action(action_id=best_action_id)
                 row = self.get_player_row(player_id, best_action_id, agent_state, game)
                 rows.append(row)

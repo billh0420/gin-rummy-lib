@@ -188,7 +188,7 @@ class GamePane(pn.pane.Markdown):
 
             agent_state = row['agent_state']
             agent = agents[player_id]
-            best_action, info = agent.eval_step(state=agent_state)
+            best_action = agent.eval_step(agent_state=agent_state)
 
             deck_count = len(held_cards) + len(dead_cards) + len(unknown_cards) + len(opponent_known_cards) + (1 if top_card else 0)
             if action_id == 0 or action_id == 1:
@@ -230,10 +230,10 @@ class InfoTablePane(pn.pane.Markdown):
         player_id = row['player_id']
         agent_state = row['agent_state']
         agent = agents[player_id]
-        best_action, info = agent.eval_step(state=agent_state)
-        if not info:
+        q_values_by_action_id = agent.get_q_values_by_action_id(agent_state=agent_state)
+        if not q_values_by_action_id:
             return ""
-        info_sorted_by_value = OrderedDict(sorted(info['values'].items(), key=lambda x: x[1], reverse=True))
+        sorted_q_values_by_action_id = OrderedDict(sorted(q_values_by_action_id.items(), key=lambda x: x[1], reverse=True))
         info_table_lines = []
         info_table_lines.append("### DQNAgent\n")
         info_table_lines.append("<div class='orange_border_table'></div>")
@@ -241,8 +241,8 @@ class InfoTablePane(pn.pane.Markdown):
         info_table_lines.append("\n")
         info_table_lines.append("| :--- | :--- | :---- |")
         info_table_lines.append("\n")
-        for info_action, q_value in info_sorted_by_value.items():
-            info_table_lines.append(f'|{info_action} | {ActionEvent.decode_action(info_action)} | {q_value} |')
+        for action_id, q_value in sorted_q_values_by_action_id.items():
+            info_table_lines.append(f'|{action_id} | {ActionEvent.decode_action(action_id)} | {q_value} |')
             info_table_lines.append("\n")
         info_table = " ".join(info_table_lines)
         return info_table
