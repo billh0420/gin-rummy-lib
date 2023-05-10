@@ -94,6 +94,8 @@ class DQNAgent_230510(object):
         save_every = float('inf')
         model_name = 'dqn_agent'
         save_path = None
+        use_raw = False
+        device = None
         for key, value in config.to_dict().items():
             if key == 'replay_memory_size':
                 replay_memory_size = value
@@ -129,8 +131,12 @@ class DQNAgent_230510(object):
                 model_name = value
             elif key == 'save_path':
                 save_path = value
+            elif key == 'use_raw':
+                use_raw = value
+            elif key == 'device':
+                device = value
 
-        self.use_raw = False
+        self.use_raw = use_raw
         self.replay_memory_init_size = replay_memory_init_size
         self.update_target_estimator_every = update_target_estimator_every
         self.discount_factor = discount_factor
@@ -377,7 +383,7 @@ class DQNAgent_230510(object):
         '''
 
         return {
-            'agent_type': 'DQNAgent',
+            'agent_type': 'DQNAgent_230510',
             'q_estimator': self.q_estimator.checkpoint_attributes(),
             'memory': self.memory.checkpoint_attributes(),
             'total_t': self.total_t,
@@ -390,7 +396,13 @@ class DQNAgent_230510(object):
             'batch_size': self.batch_size,
             'num_actions': self.num_actions,
             'train_every': self.train_every,
-            'device': self.device
+            'device': self.device,
+            # FIXED: 230510
+            'use_raw': self.use_raw,
+            'replay_memory_init_size': self.replay_memory_init_size,
+            'model_name': self.model_name,
+            'save_path': self.save_path,
+            'save_every': self.save_every
         }
 
     @classmethod
@@ -403,20 +415,28 @@ class DQNAgent_230510(object):
         '''
 
         print("\nINFO - Restoring model from checkpoint...")
-        agent_instance = cls(
-            replay_memory_size=checkpoint['memory']['memory_size'],
-            update_target_estimator_every=checkpoint['update_target_estimator_every'],
-            discount_factor=checkpoint['discount_factor'],
-            epsilon_start=checkpoint['epsilon_start'],
-            epsilon_end=checkpoint['epsilon_end'],
-            epsilon_decay_steps=checkpoint['epsilon_decay_steps'],
-            batch_size=checkpoint['batch_size'],
-            num_actions=checkpoint['num_actions'],
-            device=checkpoint['device'],
-            state_shape=checkpoint['q_estimator']['state_shape'],
-            mlp_layers=checkpoint['q_estimator']['mlp_layers'],
-            train_every=checkpoint['train_every']
-        )
+        config = DQNAgentConfig()
+
+        config.replay_memory_size = checkpoint['memory']['memory_size']
+        config.replay_memory_init_size = checkpoint['replay_memory_init_size']
+        config.update_target_estimator_every = checkpoint['update_target_estimator_every']
+        config.discount_factor = checkpoint['discount_factor']
+        config.epsilon_start = checkpoint['epsilon_start']
+        config.epsilon_end = checkpoint['epsilon_end']
+        config.epsilon_decay_steps = checkpoint['epsilon_decay_steps']
+        config.batch_size = checkpoint['batch_size']
+        config.train_every = checkpoint['train_every']
+        config.save_every = checkpoint['save_every']
+        config.learning_rate = checkpoint['q_estimator']['learning_rate']
+        config.num_actions = checkpoint['num_actions']
+        config.state_shape = checkpoint['q_estimator']['state_shape']
+        config.mlp_layers = checkpoint['q_estimator']['mlp_layers']
+        config.model_name = checkpoint['model_name']
+        config.save_path = checkpoint['save_path']
+        config.use_raw = checkpoint['use_raw']
+        config.device = checkpoint['device']
+
+        agent_instance = cls(config=config)
 
         agent_instance.total_t = checkpoint['total_t']
         agent_instance.train_t = checkpoint['train_t']
