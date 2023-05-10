@@ -19,6 +19,8 @@ class DQNAgentConfig:
         self.mlp_layers = [128, 128, 128]  # [128, 128, 128] # [64, 64, 64] # [64, 64]
         self.model_name ='dqn_agent'
         self.save_path = None
+        self.use_raw = False
+        self.device = None
 
     def to_dict(self):
         result = dict()
@@ -38,6 +40,8 @@ class DQNAgentConfig:
         result['learning_rate'] = self.learning_rate
         result['model_name'] = self.model_name
         result['save_path'] = self.save_path
+        result['use_raw'] = self.use_raw
+        result['device'] = self.device
         return result
 
     def __str__(self):
@@ -59,4 +63,6 @@ class DQNAgentConfig:
         lines.append(f'learning_rate={self.learning_rate}')
         lines.append(f'model_name={self.model_name}')
         lines.append(f'save_path={self.save_path}')
+        lines.append(f'use_raw={self.use_raw}')
+        lines.append(f'device={self.device}')
         return "\n".join(lines)
