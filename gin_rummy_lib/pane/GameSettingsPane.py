@@ -1,7 +1,9 @@
 import panel as pn
 
-from World import World
 from rlcard.games.gin_rummy.utils.settings import Setting
+
+from World import World
+from util import game_settings_to_dict
 
 class GameSettingsPane(pn.Column):
 
@@ -21,7 +23,7 @@ class GameSettingsPane(pn.Column):
 
         ### setting_pane
         lines = ["### Current Game Settings"]
-        game_settings_dict = world.game_settings_dict
+        game_settings_dict = game_settings_to_dict(settings=world.game.settings)
         if game_settings_dict:
             for key, value in game_settings_dict.items():
                 lines.append(f'{key}: {value}')

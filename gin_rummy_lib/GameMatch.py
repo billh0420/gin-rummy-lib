@@ -7,8 +7,6 @@ import pandas as pd
 from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.games.gin_rummy.utils.action_event import ActionEvent
 
-from GameObserver import GameObserver
-
 class GameMatch:
 
     def __init__(self, game:GinRummyGame, agents, max_review_episodes:int):
@@ -16,7 +14,6 @@ class GameMatch:
         self.dataframe = self.get_dataframe(game=game, agents=agents)
 
     def get_dataframe(self, game:GinRummyGame, agents):
-        game_observer = GameObserver()
         rows = []
         episode = 0
         while episode < self.max_review_episodes:
