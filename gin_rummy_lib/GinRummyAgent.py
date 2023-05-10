@@ -44,6 +44,17 @@ class GinRummyAgent:
         legal_actions_ids = {action_event.action_id: None for action_event in legal_actions}
         return OrderedDict(legal_actions_ids)
 
+    def get_q_values_by_action_id(self, agent_state):
+        ''' Predict the action for evaluation purpose.
+
+        Args:
+            agent_state (numpy.array): current state
+
+        Returns:
+            q_values_by_action_id (dict): A dictionary containing q_values by action_id
+        '''
+        return None
+
     def eval_step(self, agent_state) -> int:
         ''' Predict the action_id given the current agent_state for evaluation.
 
