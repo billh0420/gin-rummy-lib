@@ -15,7 +15,9 @@ from rlcard.games.gin_rummy.utils.thinker import Thinker
 import rlcard.games.gin_rummy.utils.melding as melding
 import rlcard.games.gin_rummy.utils.utils as gin_rummy_utils
 
-class GinRummyRookie01RuleAgent(object):
+from GinRummyAgent import GinRummyAgent
+
+class GinRummyRookie01RuleAgent(GinRummyAgent):
     '''
         Always gin if can.
         Always knock if can.
@@ -26,21 +28,19 @@ class GinRummyRookie01RuleAgent(object):
     def __init__(self):
         self.use_raw = False
 
-    def eval_step(self, state):
-        ''' Predict the action given the current state for evaluation.
+    def eval_step(self, agent_state) -> int:
+        ''' Predict the action_id given the current state for evaluation.
             Since the agents is not trained, this function is equivalent to step function.
 
         Args:
             state (numpy.array): an numpy array that represents the current state
 
         Returns:
-            action (int): the action predicted by the agent
-            probabilities (list): The list of action probabilities
+            action_id (int): the action predicted by the agent
         '''
-        probabilities = []
-        return self.step(state), probabilities
+        return self.step(agent_state)
 
-    def step(self, state) -> int:
+    def step(self, agent_state) -> int:
         ''' Predict the action_id given the current state.
             Rookie01 strategy:
                 Case where can gin:
@@ -58,18 +58,18 @@ class GinRummyRookie01RuleAgent(object):
                     Choose a random action.
 
         Args:
-            state (numpy.array): an numpy array that represents the current state
+            agent_state (numpy.array): an numpy array that represents the current state
 
         Returns:
             action_id (int): the action_id predicted
         '''
-        agent_action_ids = state['raw_agent_actions']
+        agent_action_ids = agent_state['raw_agent_actions']
         action_ids = agent_action_ids.copy()
         legal_action_events = [ActionEvent.decode_action(x) for x in agent_action_ids]
         gin_action_events = [x for x in legal_action_events if isinstance(x, GinAction)]
         knock_action_events = [x for x in legal_action_events if isinstance(x, KnockAction)]
         discard_action_events = [x for x in legal_action_events if isinstance(x, DiscardAction)]
-        env_hand = state['obs'][0]
+        env_hand = agent_state['obs'][0]
         hand = gin_rummy_utils.decode_cards(env_cards=env_hand)
         if gin_action_events:
             action_ids = [x.action_id for x in gin_action_events]
@@ -78,7 +78,7 @@ class GinRummyRookie01RuleAgent(object):
         elif discard_action_events:
             action_ids = self._decide_discard_action_ids(hand=hand, discard_action_events=discard_action_events)
         elif pick_up_discard_action_id in agent_action_ids:
-            env_top_discard_card = state['obs'][1]
+            env_top_discard_card = agent_state['obs'][1]
             top_discard_card = gin_rummy_utils.decode_cards(env_cards=env_top_discard_card)[0]
             action_ids = self._decide_get_card_action_ids(top_discard_card=top_discard_card, hand=hand, agent_action_ids=agent_action_ids)
         return np.random.choice(action_ids)

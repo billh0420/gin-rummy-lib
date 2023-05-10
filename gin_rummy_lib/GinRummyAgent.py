@@ -4,11 +4,11 @@ from collections import OrderedDict
 from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.games.gin_rummy.utils import utils
 
-class GinRummyKludge:
+class GinRummyAgent:
 
     def get_agent_state(self, player_id: int, game: GinRummyGame):
         if not game.is_over() and player_id != game.get_player_id():
-            raise Exception("GinRummyKludge get_agent_state: agent is not current player.")
+            raise Exception("GinRummyAgent get_agent_state: agent is not current player.")
         agent_actions = self.get_agent_actions(player_id=player_id, game=game)
         player = game.round.players[player_id]
         opponent = game.round.players[(player_id + 1) % 2]
@@ -39,7 +39,31 @@ class GinRummyKludge:
 
     def get_agent_actions(self, player_id: int, game):
         if not game.is_over() and player_id != game.get_player_id():
-            raise Exception("GinRummyKludge get_legal_actions: agent is not current player.")
+            raise Exception("GinRummyAgent get_legal_actions: agent is not current player.")
         legal_actions = game.judge.get_legal_actions()
         legal_actions_ids = {action_event.action_id: None for action_event in legal_actions}
         return OrderedDict(legal_actions_ids)
+
+    def eval_step(self, agent_state) -> int:
+        ''' Predict the action_id given the current agent_state for evaluation.
+
+        Args:
+            agent_state (numpy.array): an numpy array that represents the current state
+
+        Returns:
+            action_id (int): the action_id predicted by the agent
+        '''
+
+        raise NotImplementedError
+
+    def step(self, agent_state) -> int:
+        ''' Predict the action_id given the current agent_state.
+
+        Args:
+            agent_state (numpy.array): an numpy array that represents the current state
+
+        Returns:
+            action_id (int): the action_id predicted
+        '''
+
+        raise NotImplementedError
