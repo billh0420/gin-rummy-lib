@@ -16,17 +16,15 @@ from GinRummyLoserRuleAgent import GinRummyLoserRuleAgent
 from rlcard.agents.random_agent import RandomAgent
 
 from util import get_current_time
-from util import game_settings_to_dict
 from RLTrainerConfig import RLTrainerConfig
 from RLTrainer230506 import RLTrainer230506
-from GameMaker import GameMaker
 
 from pane.DQNAgentPane import DQNAgentPane
 
 class World:
 
-    def __init__(self, game_maker:GameMaker, world_dir:str or None = None):
-        self.game_maker = game_maker
+    def __init__(self, game: GinRummyGame, world_dir:str or None = None):
+        self.game = game
         self.world_dir = world_dir if world_dir else os.path.abspath('.')
 
         self.model_name = None # determines the training agent
@@ -43,7 +41,7 @@ class World:
     def opponent(self):
         opponent = GinRummyNoviceRuleAgent()
         opponent_name = self.opponent_name
-        num_actions = self.get_game_num_actions()
+        num_actions = self.game.get_num_actions()
         if opponent_name == 'Random':
             opponent = RandomAgent(num_actions=num_actions)
         elif opponent_name == 'Novice':
@@ -85,24 +83,11 @@ class World:
             result = f'{self.world_dir}/agents/{model_name}/{model_name}.pth'
         return result
 
-    @property
-    def game_settings(self):
-        return self.game_maker.make_game().settings
-
-    @property
-    def game_settings_dict(self):
-        return game_settings_to_dict(settings=self.game_settings)
-
-    def get_game_num_actions(self) -> int:
-        game = self.game_maker.make_game()
-        num_actions = game.get_num_actions()
-        return num_actions
-
     def play_train_match(self, num_episodes: int or None = None):
         agent_dir = self.agent_dir
         agent = self.agent
         if agent and agent_dir:
-            game = self.game_maker.make_game()
+            game = self.game
             rl_trainer_config = self.rl_trainer_config
             # Print current configuration
             print("Starting training")

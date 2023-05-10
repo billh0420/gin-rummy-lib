@@ -13,7 +13,7 @@ class ReviewPlayWindow(pn.Column):
         super().__init__()
         self.world = world
         self.agents = [self.world.agent] + self.world.opponents
-        self.game_reviewer = GameReviewer(game=self.world.game_maker.make_game(), agents=self.agents)
+        self.game_reviewer = GameReviewer(game=self.world.game, agents=self.agents)
 
         self.review_play_pane = ReviewPlayPane(agents=self.agents, game_match=self.game_reviewer.game_match)
         self.review_play_pane.margin = 5
@@ -82,7 +82,7 @@ class ReviewPlayWindow(pn.Column):
         self.review_play_pane.play_match_control.play_match_status.object = f'Finished {event.new}'
 
     def play_review_match(self, max_review_episodes: int):
-        game = self.world.game_maker.make_game()
+        game = self.world.game
         agents = self.agents
         self.game_reviewer.play_review_match(game=game, agents=agents, max_review_episodes=max_review_episodes)
 
