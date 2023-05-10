@@ -25,10 +25,11 @@ class GameMatch:
             step = 0
             while game.is_over() == False:
                 step += 1
-                env_state = game_observer.extract_state(game=game)
-                best_action_id, info = agents[player_id].eval_step(state=env_state)
+                agent = agents[player_id]
+                agent_state = agent.get_agent_state(player_id=player_id, game=game)
+                best_action_id, info = agent.eval_step(state=agent_state)
                 best_action = ActionEvent.decode_action(action_id=best_action_id)
-                row = self.get_player_row(player_id, best_action_id, env_state, game)
+                row = self.get_player_row(player_id, best_action_id, agent_state, game)
                 rows.append(row)
                 state, player_id = game.step(action=best_action)
                 if step >= 200: # Note this
@@ -36,7 +37,7 @@ class GameMatch:
         dataframe = pd.DataFrame(rows)
         return dataframe
 
-    def get_player_row(self, player_id: int, action_id: int, env_state, game: GinRummyGame):
+    def get_player_row(self, player_id: int, action_id: int, agent_state, game: GinRummyGame):
         opponent_id = (player_id + 1) % 2
         legal_actions = game.judge.get_legal_actions()
         legal_action_ids = list(map(lambda legal_action: legal_action.action_id, legal_actions))
@@ -54,5 +55,5 @@ class GameMatch:
             'unknown_cards': unknown_cards,
             'legal_action_ids': legal_action_ids,
             'action_id': action_id,
-            'env_state': env_state}
+            'agent_state': agent_state}
         return row
