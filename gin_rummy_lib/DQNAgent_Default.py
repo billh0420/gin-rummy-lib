@@ -6,10 +6,10 @@ import pathlib
 
 from rlcard.games.gin_rummy.utils import utils
 
-from DQNAgent_230506 import DQNAgent_230506
+from dqn_agent_230510.DQNAgent_230510 import DQNAgent_230510
 from DQNAgentConfig import DQNAgentConfig
 
-class DQNAgent_Default(DQNAgent_230506):
+class DQNAgent_Default(DQNAgent_230510):
 
     # Note: Treat opponent's known cards as dead cards.
 

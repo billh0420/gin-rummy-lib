@@ -8,7 +8,7 @@ from rlcard.utils import Logger, plot_curve, get_device, set_seed
 from rlcard.games.gin_rummy.game import GinRummyGame
 
 from Contest import Contest, Contest_Delegate
-from DQNAgent_230506 import Transition
+from dqn_agent_230510.Transition import Transition
 
 class RLTrainer230506:
 
