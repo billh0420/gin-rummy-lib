@@ -186,9 +186,9 @@ class GamePane(pn.pane.Markdown):
             unknown_cards = sorted(row['unknown_cards'], key=sortByRankBySuit, reverse=True)
             unknown_cards_names = " ".join(map(str, unknown_cards))
 
-            env_state = row['env_state']
+            agent_state = row['agent_state']
             agent = agents[player_id]
-            best_action, info = agent.eval_step(state=env_state)
+            best_action, info = agent.eval_step(state=agent_state)
 
             deck_count = len(held_cards) + len(dead_cards) + len(unknown_cards) + len(opponent_known_cards) + (1 if top_card else 0)
             if action_id == 0 or action_id == 1:
@@ -228,9 +228,9 @@ class InfoTablePane(pn.pane.Markdown):
             return ""
         row = dataframe.iloc[row_id]
         player_id = row['player_id']
-        env_state = row['env_state']
+        agent_state = row['agent_state']
         agent = agents[player_id]
-        best_action, info = agent.eval_step(state=env_state)
+        best_action, info = agent.eval_step(state=agent_state)
         if not info:
             return ""
         info_sorted_by_value = OrderedDict(sorted(info['values'].items(), key=lambda x: x[1], reverse=True))
