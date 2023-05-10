@@ -37,13 +37,14 @@ from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.games.gin_rummy.utils import utils
 
 from DQNAgentConfig import DQNAgentConfig
+from GinRummyAgent import GinRummyAgent
 
 from .Estimator import Estimator
 from .Memory import Memory
 from .Transition import Transition
 
 
-class DQNAgent_230510(object):
+class DQNAgent_230510(GinRummyAgent):
     '''
     Approximate clone of rlcard.agents.dqn_agent.DQNAgent
     that depends on PyTorch instead of Tensorflow
@@ -241,71 +242,76 @@ class DQNAgent_230510(object):
         env_state['raw_obs'] = obs
         return env_state
 
-    def step(self, state):
+    def step(self, agent_state) -> int:
         ''' Predict the action for genrating training data but
             have the predictions disconnected from the computation graph
 
         Args:
-            state (numpy.array): current state
+            agent_state (numpy.array): current state
 
         Returns:
-            action (int): an action id
+            action_id (int): an action id
         '''
-        q_values = self.predict(state)
+        q_values = self.predict(agent_state)
         epsilon = self.epsilons[min(self.total_t, self.epsilon_decay_steps-1)]
-        agent_actions = list(state['agent_actions'].keys())
+        agent_actions = list(agent_state['agent_actions'].keys())
         probs = np.ones(len(agent_actions), dtype=float) * epsilon / len(agent_actions)
         best_action_idx = agent_actions.index(np.argmax(q_values))
         probs[best_action_idx] += (1.0 - epsilon)
         action_idx = np.random.choice(np.arange(len(probs)), p=probs)
-
         return agent_actions[action_idx]
 
-    def eval_step(self, state):
+    def eval_step(self, agent_state) -> int:
         ''' Predict the action for evaluation purpose.
 
         Args:
-            state (numpy.array): current state
+            agent_state (numpy.array): current state
 
         Returns:
-            action (int): an action id
-            info (dict): A dictionary containing information
+            action_id (int): an action id
         '''
-        q_values = self.predict(state)
+        q_values = self.predict(agent_state)
         best_action = np.argmax(q_values)
+        return best_action
 
-        info = {}
-        info['values'] = {state['raw_agent_actions'][i]: float(q_values[list(state['agent_actions'].keys())[i]]) for i in range(len(state['agent_actions']))}
-
-        return best_action, info
-
-    def predict(self, state):
+    def predict(self, agent_state):
         ''' Predict the masked Q-values
 
         Args:
-            state (numpy.array): current state
+            agent_state (numpy.array): current state
 
         Returns:
             q_values (numpy.array): a 1-d array where each entry represents a Q value
         '''
-
-        q_values = self.q_estimator.predict_nograd(np.expand_dims(state['obs'], 0))[0]
+        q_values = self.q_estimator.predict_nograd(np.expand_dims(agent_state['obs'], 0))[0]
         masked_q_values = -np.inf * np.ones(self.num_actions, dtype=float)
-        agent_actions = list(state['agent_actions'].keys())
+        agent_actions = list(agent_state['agent_actions'].keys())
         masked_q_values[agent_actions] = q_values[agent_actions]
-
         return masked_q_values
 
-    def feed(self, ts): # 230506
+    def get_q_values_by_action_id(self, agent_state):
+        ''' Predict the action for evaluation purpose.
+
+        Args:
+            agent_state (numpy.array): current state
+
+        Returns:
+            q_values_by_action_id (dict): A dictionary containing q_values by action_id
+        '''
+        q_values = self.predict(agent_state)
+        q_values_by_action_id = {agent_state['raw_agent_actions'][i]: float(q_values[list(agent_state['agent_actions'].keys())[i]]) for i in range(len(agent_state['agent_actions']))}
+        return q_values_by_action_id
+
+    def feed(self, transition): # 230506
         ''' Store data in to replay buffer and train the agent. There are two stages.
             In stage 1, populate the memory without training
             In stage 2, train the agent every several timesteps
 
         Args:
-            ts (list): a list of 6 elements that represent the transition
+            transition (list): a list of 6 elements that represent the transition
             The state and the next_state are the observations for this agent.
         '''
-        (state, action, reward, next_state, done, next_legal_actions) = tuple(ts)
+        (state, action, reward, next_state, done, next_legal_actions) = tuple(transition)
         self.feed_memory(state, action, reward, next_state, next_legal_actions, done)
         self.total_t += 1
         tmp = self.total_t - self.replay_memory_init_size

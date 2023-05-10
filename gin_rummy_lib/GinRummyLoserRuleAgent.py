@@ -4,7 +4,9 @@ from rlcard.games.gin_rummy.utils.action_event import ActionEvent, DiscardAction
 from rlcard.games.gin_rummy.utils.action_event import draw_card_action_id, declare_dead_hand_action_id
 import rlcard.games.gin_rummy.utils.utils as gin_rummy_utils
 
-class GinRummyLoserRuleAgent(object):
+from GinRummyAgent import GinRummyAgent
+
+class GinRummyLoserRuleAgent(GinRummyAgent):
     """
         Always gin if can.
         Always declare dead hand if can.
@@ -17,21 +19,19 @@ class GinRummyLoserRuleAgent(object):
     def __init__(self):
         self.use_raw = False
 
-    def eval_step(self, state):
-        ''' Predict the action given the current state for evaluation.
-            Since the agents is not trained, this function is equivalent to step function.
+    def eval_step(self, agent_state) -> int:
+        ''' Predict the action_id given the current state for evaluation.
+            Since the agent is not trained, this function is equivalent to step function.
 
         Args:
-            state (numpy.array): an numpy array that represents the current state
+            agent_state (numpy.array): an numpy array that represents the current state
 
         Returns:
-            action (int): the action predicted by the agent
-            probabilities (list): The list of action probabilities
+            action_id (int): the action predicted by the agent
         '''
-        probabilities = []
-        return self.step(state), probabilities
+        return self.step(agent_state)
 
-    def step(self, state) -> int:
+    def step(self, agent_state) -> int:
         ''' Predict the action_id given the current state.
             Rookie01 strategy:
                 Case where can gin:
@@ -49,12 +49,12 @@ class GinRummyLoserRuleAgent(object):
                     Choose a random action.
 
         Args:
-            state (numpy.array): an numpy array that represents the current state
+            agent_state (numpy.array): an numpy array that represents the current state
 
         Returns:
             action_id (int): the action_id predicted
         '''
-        agent_action_ids = state['raw_agent_actions']
+        agent_action_ids = agent_state['raw_agent_actions']
         legal_action_events = [ActionEvent.decode_action(x) for x in agent_action_ids]
         gin_action_events = [x for x in legal_action_events if isinstance(x, GinAction)]
         knock_action_events = [x for x in legal_action_events if isinstance(x, KnockAction)]
