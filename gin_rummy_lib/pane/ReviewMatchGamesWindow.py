@@ -1,7 +1,7 @@
 import panel as pn
 
 from World import World
-from pane.ReviewPlayWindow import ReviewPlayWindow
+from pane.review_play_window.ReviewPlayWindow import ReviewPlayWindow
 from pane.DQNAgentPane import DQNAgentPane
 from pane.RLTrainerPane import RLTrainerPane
 from pane.GameSettingsPane import GameSettingsPane

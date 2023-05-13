@@ -2,7 +2,7 @@ import panel as pn
 
 from rlcard.games.gin_rummy.game import GinRummyGame
 
-from GameMatch import GameMatch
+from .GameMatch import GameMatch
 
 class GameReviewer:
 

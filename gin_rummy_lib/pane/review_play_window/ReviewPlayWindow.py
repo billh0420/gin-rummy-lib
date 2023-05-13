@@ -4,7 +4,7 @@ from collections import OrderedDict
 from rlcard.games.gin_rummy.utils.action_event import ActionEvent
 
 from World import World
-from GameReviewer import GameReviewer
+from .GameReviewer import GameReviewer
 from util import sortByRankBySuit
 
 class ReviewPlayWindow(pn.Column):
