@@ -9,10 +9,10 @@ from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.games.gin_rummy.utils import utils
 from rlcard.games.gin_rummy.utils.scorers import knock_action_id
 
-from dqn_agent_230510.DQNAgent_230510 import DQNAgent_230510
+from dqn_agent_230510.DQNAgent import DQNAgent
 from DQNAgentConfig import DQNAgentConfig
 
-class DQNAgent_Gins(DQNAgent_230510):
+class DQNAgent_Gins(DQNAgent):
 
     # Note: Treat opponent's known cards as dead cards.
     # Note: Omit knock actions as legal actions.
