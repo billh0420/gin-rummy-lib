@@ -15,9 +15,11 @@ from rlcard.games.gin_rummy.utils.thinker import Thinker
 import rlcard.games.gin_rummy.utils.melding as melding
 import rlcard.games.gin_rummy.utils.utils as gin_rummy_utils
 
-from GinRummyAgent import GinRummyAgent
+from GinRummyAgentStateMixin import GinRummyAgentStateMixin
+from GinRummyAgentActionsMixin import GinRummyAgentActionsMixin
+from GameAgent import GameAgent
 
-class GinRummyRookie01RuleAgent(GinRummyAgent):
+class GinRummyRookie01RuleAgent(GinRummyAgentStateMixin, GinRummyAgentActionsMixin, GameAgent):
     '''
         Always gin if can.
         Always knock if can.
@@ -26,6 +28,7 @@ class GinRummyRookie01RuleAgent(GinRummyAgent):
     '''
 
     def __init__(self):
+        super().__init__()
         self.use_raw = False
 
     def eval_step(self, agent_state) -> int:

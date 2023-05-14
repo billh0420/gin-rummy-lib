@@ -4,7 +4,7 @@ import os
 
 from rlcard.agents import DQNAgent
 
-from dqn_agent_230510.DQNAgent_230510 import DQNAgent_230510
+from gin_rummy_dqn_agent.DQNAgent_Default import DQNAgent_Default
 from DQNAgentConfig import DQNAgentConfig
 from util import to_int_list
 
@@ -18,7 +18,7 @@ class DQNAgentConfigWindow(pn.Column):
         if os.path.exists(agent_path):
             agent = torch.load(agent_path) # FIXME: 230421 is this ok?
         else:
-            agent = DQNAgent_230510(config=config)
+            agent = DQNAgent_Default(config=config)
             if not os.path.exists(agent_dir):
                 os.makedirs(agent_dir)
             torch.save(agent, agent_path)

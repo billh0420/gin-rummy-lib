@@ -93,7 +93,10 @@ class RLTrainer230506:
             agent = agents[player_id]
             # agent chooses action
             agent_state = agent.get_agent_state(player_id=player_id, game=game)
-            action_id = agent.step(agent_state=agent_state)
+            if player_id == self.training_agent_id:
+                action_id = agent.step(agent_state=agent_state)
+            else:
+                action_id = agent.eval_step(agent_state=agent_state)
             game_action = game.decode_action(action_id=action_id)
             # update transitions
             if player_id == self.training_agent_id and prior_agent_state is not None:
