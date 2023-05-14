@@ -10,7 +10,7 @@ from rlcard.agents import DQNAgent
 
 from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.games.gin_rummy.utils.settings import Setting, Settings
-from rlcard.models.gin_rummy_rule_models import GinRummyNoviceRuleAgent
+from gin_rummy_rule_agent.GinRummyNoviceRuleAgent import GinRummyNoviceRuleAgent
 from gin_rummy_rule_agent.GinRummyRookie01RuleAgent import GinRummyRookie01RuleAgent
 from gin_rummy_rule_agent.GinRummyLoserRuleAgent import GinRummyLoserRuleAgent
 from rlcard.agents.random_agent import RandomAgent

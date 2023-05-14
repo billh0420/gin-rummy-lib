@@ -21,7 +21,6 @@ class GinRummyAgentStateMixin:
                              opponent known cards (likewise)
                              unknown cards (likewise)  # is this needed ??? 200213
         '''
-    def get_agent_state(self, player_id: int, game: GinRummyGame):
         if not game.is_over() and player_id != game.get_player_id():
             raise Exception("GinRummyAgent get_agent_state: agent is not current player.")
         agent_actions = self.get_agent_actions(player_id=player_id, game=game)

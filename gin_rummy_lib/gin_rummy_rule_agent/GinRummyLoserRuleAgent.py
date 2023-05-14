@@ -4,9 +4,11 @@ from rlcard.games.gin_rummy.utils.action_event import ActionEvent, DiscardAction
 from rlcard.games.gin_rummy.utils.action_event import draw_card_action_id, declare_dead_hand_action_id
 import rlcard.games.gin_rummy.utils.utils as gin_rummy_utils
 
-from GinRummyAgent import GinRummyAgent
+from GinRummyAgentStateMixin import GinRummyAgentStateMixin
+from GinRummyAgentActionsMixin import GinRummyAgentActionsMixin
+from GameAgent import GameAgent
 
-class GinRummyLoserRuleAgent(GinRummyAgent):
+class GinRummyLoserRuleAgent(GinRummyAgentStateMixin, GinRummyAgentActionsMixin, GameAgent):
     """
         Always gin if can.
         Always declare dead hand if can.
@@ -17,21 +19,10 @@ class GinRummyLoserRuleAgent(GinRummyAgent):
     """
 
     def __init__(self):
+        super().__init__()
         self.use_raw = False
 
     def eval_step(self, agent_state) -> int:
-        ''' Predict the action_id given the current state for evaluation.
-            Since the agent is not trained, this function is equivalent to step function.
-
-        Args:
-            agent_state (numpy.array): an numpy array that represents the current state
-
-        Returns:
-            action_id (int): the action predicted by the agent
-        '''
-        return self.step(agent_state)
-
-    def step(self, agent_state) -> int:
         ''' Predict the action_id given the current state.
             Rookie01 strategy:
                 Case where can gin:
