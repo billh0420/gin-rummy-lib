@@ -22,7 +22,7 @@ class GinRummyAgentStateMixin:
                              unknown cards (likewise)  # is this needed ??? 200213
         '''
         if not game.is_over() and player_id != game.get_player_id():
-            raise Exception("GinRummyAgent get_agent_state: agent is not current player.")
+            raise Exception("GinRummyAgentStateMixin get_agent_state: agent is not current player.")
         agent_actions = self.get_agent_actions(player_id=player_id, game=game)
         player = game.round.players[player_id]
         opponent = game.round.players[(player_id + 1) % 2]
