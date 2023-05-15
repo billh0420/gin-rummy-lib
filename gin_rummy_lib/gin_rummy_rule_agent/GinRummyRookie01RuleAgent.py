@@ -32,18 +32,6 @@ class GinRummyRookie01RuleAgent(GinRummyAgentStateMixin, GinRummyAgentActionsMix
         self.use_raw = False
 
     def eval_step(self, agent_state) -> int:
-        ''' Predict the action_id given the current state for evaluation.
-            Since the agents is not trained, this function is equivalent to step function.
-
-        Args:
-            state (numpy.array): an numpy array that represents the current state
-
-        Returns:
-            action_id (int): the action predicted by the agent
-        '''
-        return self.step(agent_state)
-
-    def step(self, agent_state) -> int:
         ''' Predict the action_id given the current state.
             Rookie01 strategy:
                 Case where can gin:
