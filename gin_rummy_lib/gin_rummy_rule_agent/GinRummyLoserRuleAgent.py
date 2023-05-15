@@ -24,18 +24,17 @@ class GinRummyLoserRuleAgent(GinRummyAgentStateMixin, GinRummyAgentActionsMixin,
 
     def eval_step(self, agent_state) -> int:
         ''' Predict the action_id given the current state.
-            Rookie01 strategy:
+            Loser strategy:
                 Case where can gin:
                     Choose one of the gin actions.
                 Case where can knock:
-                    Choose one of the knock actions.
+                    Never knock.
                 Case where can discard:
-                    Gin if can. Knock if can.
-                    Otherwise, put aside cards in some best meld cluster.
-                    Choose one of the remaining cards with highest deadwood value.
-                    Discard that card.
+                    Gin if can.
+                    Done't knock if can.
+                    Discard a random card.
                 Case where can pick up discard:
-                    Pick up discard card if it forms a worthwhile meld else draw a card (or declare dead hand if cannot draw).
+                    Never pick up a card.
                 Case otherwise:
                     Choose a random action.
 

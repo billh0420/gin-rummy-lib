@@ -5,9 +5,9 @@ from rlcard.games.gin_rummy.game import GinRummyGame
 from rlcard.games.gin_rummy.utils import utils
 from rlcard.games.gin_rummy.utils.action_event import ActionEvent, ScoreNorthPlayerAction, ScoreSouthPlayerAction
 
-from dqn_agent_230510.DQNAgent_230510 import DQNAgent_230510
+from dqn_agent_230510.DQNAgent import DQNAgent
 
-class DQNAgent_AnyAction(DQNAgent_230510):
+class DQNAgent_AnyAction(DQNAgent):
 
     # Note: Treat opponent's known cards as dead cards.
 
