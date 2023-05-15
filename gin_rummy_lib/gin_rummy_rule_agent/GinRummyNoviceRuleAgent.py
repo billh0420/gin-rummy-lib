@@ -42,7 +42,7 @@ class GinRummyNoviceRuleAgent(GinRummyAgentStateMixin, GinRummyAgentActionsMixin
             agent_state (numpy.array): an numpy array that represents the current state
 
         Returns:
-            action (int): the action predicted
+            action_id (int): the action predicted
         '''
         legal_actions = agent_state['agent_actions']
         actions = legal_actions.copy()
