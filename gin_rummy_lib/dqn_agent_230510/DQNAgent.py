@@ -353,7 +353,7 @@ class DQNAgent(GameAgent):
         '''
 
         return {
-            'agent_type': 'DQNAgent_230510',
+            'agent_type': 'DQNAgent',
             'q_estimator': self.q_estimator.checkpoint_attributes(),
             'memory': self.memory.checkpoint_attributes(),
             'total_t': self.total_t,
