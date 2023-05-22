@@ -35,6 +35,9 @@ class RLTrainer230506:
         set_seed(seed)
         agent = agents[self.training_agent_id]
         log_dir = self.get_log_dir(agent=agent)
+        # Keep copy of original model
+        model_name = self.get_model_name(agent=agent)
+        self.save_model(agent=agent, save_model_name=f'prior_{model_name}')
         with Logger(log_dir=log_dir) as logger:
             for episode in range(num_episodes):
                 # Feed transitions into agent memory, and train the agent.
@@ -49,7 +52,8 @@ class RLTrainer230506:
         # Plot the learning curve
         self.plot_learning_curve(logger=logger)
         # Save model
-        self.save_model(agent=agent)
+        model_name = self.get_model_name(agent=agent)
+        self.save_model(agent=agent, save_model_name=model_name)
 
     def get_model_name(self, agent):
         model_name = None
@@ -72,10 +76,9 @@ class RLTrainer230506:
         csv_path, fig_path = logger.csv_path, logger.fig_path
         plot_curve(csv_path, fig_path, self.algorithm)
 
-    def save_model(self, agent):
+    def save_model(self, agent, save_model_name: str):
         log_dir = self.get_log_dir(agent=agent)
-        model_name = self.get_model_name(agent=agent)
-        save_path = os.path.join(log_dir, f'{model_name}.pth')
+        save_path = os.path.join(log_dir, f'{save_model_name}.pth')
         torch.save(agent, save_path)
         print('Model saved in', save_path)
 
