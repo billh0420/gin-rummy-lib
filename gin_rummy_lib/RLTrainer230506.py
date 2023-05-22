@@ -49,6 +49,8 @@ class RLTrainer230506:
                 # Evaluate the performance.
                 if episode % evaluate_every == 0:
                     self.evaluate_performance(game=game, agents=agents, num_eval_games=num_eval_games, episode=episode, logger=logger)
+            # Final evaluate the performance.
+            self.evaluate_performance(game=game, agents=agents, num_eval_games=num_eval_games, episode=episode, logger=logger)
         # Plot the learning curve
         self.plot_learning_curve(logger=logger)
         # Save model
